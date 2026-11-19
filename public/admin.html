@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kingdom Clash — لوحة صاحب اللعبة</title>
+<style>
+body{margin:0;background:#0b1324;color:#e2e8f0;font-family:system-ui,Tahoma,sans-serif}
+.w{max-width:900px;margin:auto;padding:14px}
+h1{font-size:20px;margin:6px 0 12px}.card{background:#16233b;border:1px solid #334155;border-radius:12px;padding:12px;margin-bottom:10px}
+input,select,textarea{background:#0f172a;color:#fff;border:1px solid #334155;border-radius:8px;padding:7px;font-size:14px}
+button{background:#f59e0b;color:#1c1917;border:none;border-radius:8px;padding:7px 14px;font-weight:800;cursor:pointer}
+button.r{background:#ef4444;color:#fff}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;border-bottom:1px solid #1e293b;text-align:right}
+.mut{color:#94a3b8;font-size:13px}.ok{color:#86efac}
+</style></head><body><div class="w">
+<h1>👑 لوحة صاحب اللعبة — Kingdom Clash</h1>
+<div class="card" id="login"><div class="row"><input id="key" type="password" placeholder="مفتاح الإدارة (ADMIN_KEY)" style="flex:1"><button id="go">دخول</button></div>
+<div class="mut">المفتاح موجود في إعدادات السيرفر على Render ← Environment ← ADMIN_KEY</div></div>
+<div id="panel" style="display:none">
+ <div class="card"><b>📊 الحالة</b> <span id="st" class="ok"></span></div>
+ <div class="card"><b>📯 إعلان لكل اللاعبين</b><div class="row" style="margin-top:6px"><input id="ann" maxlength="200" style="flex:1" placeholder="مثال: الملك يدعو الجميع إلى الساحة الساعة 9"><button id="annB">أرسل</button></div></div>
+ <div class="card"><b>🎉 حدث خاص</b><div class="row" style="margin-top:6px">
+  <input id="evn" placeholder="اسم الحدث (مثال: أسبوع الأبطال)" style="flex:1">
+  <label>الخبرة ×<select id="evx"><option>1</option><option>2</option><option>3</option></select></label>
+  <label>الذهب ×<select id="evg"><option>1</option><option>2</option><option>3</option></select></label>
+  <button id="evB">تفعيل</button><button class="r" id="evOff">إيقاف</button></div><div class="mut" id="evNow"></div></div>
+ <div class="card"><b>👥 اللاعبون المتصلون</b><table><thead><tr><th>الاسم</th><th>المملكة</th><th>الرتبة</th><th>المكان</th><th></th></tr></thead><tbody id="pl"></tbody></table></div>
+</div></div>
+<script>
+const $=s=>document.querySelector(s);const KN={ice:'❄️ الجليد',fire:'🔥 النار',sand:'🏜️ الرمال'};
+const RN=['جندي','جندي أول','عريف','رقيب','رقيب أول','ملازم','ملازم أول','نقيب','رائد','مقدم','عقيد','عميد','لواء','فريق'];
+let ws;$('#key').value=localStorage.getItem('kc_admin')||'';
+$('#go').onclick=()=>{const k=$('#key').value.trim();localStorage.setItem('kc_admin',k);ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws?admin='+encodeURIComponent(k));
+ ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.t==='denied'){alert('المفتاح غير صحيح');return}if(m.t==='list'){$('#login').style.display='none';$('#panel').style.display='block';
+  $('#st').textContent='متصل • '+m.p.length+' لاعب أونلاين';$('#evNow').textContent=m.ev.xp>1||m.ev.gold>1?('الحدث الحالي: '+(m.ev.name||'')+' — خبرة ×'+m.ev.xp+' ذهب ×'+m.ev.gold):'لا يوجد حدث الآن';
+  $('#pl').innerHTML=m.p.map(p=>`<tr><td>${p.name.replace(/</g,'')}</td><td>${KN[p.k]||p.k}</td><td>${RN[p.r]||p.r}</td><td class="mut">${p.x}, ${p.z}</td><td><button class="r" data-k="${p.id}">طرد</button></td></tr>`).join('')||'<tr><td colspan=5 class="mut">لا يوجد لاعبون الآن</td></tr>';
+  document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const r=prompt('سبب الطرد (اختياري)')||'';ws.send(JSON.stringify({t:'kick',id:b.dataset.k,m:r}))})}};
+ ws.onclose=()=>{$('#st').textContent='انقطع الاتصال — أعد تحميل الصفحة'}};
+$('#annB').onclick=()=>{const v=$('#ann').value.trim();if(v){ws.send(JSON.stringify({t:'ann',m:v}));$('#ann').value=''}};
+$('#evB').onclick=()=>ws.send(JSON.stringify({t:'ev',name:$('#evn').value,xp:$('#evx').value,gold:$('#evg').value}));
+$('#evOff').onclick=()=>ws.send(JSON.stringify({t:'ev',name:'',xp:1,gold:1}));
+if($('#key').value)$('#go').click();
+</script></body></html>

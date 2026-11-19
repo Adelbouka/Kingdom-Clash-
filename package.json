@@ -1,0 +1,9 @@
+{
+  "name": "kingdom-clash",
+  "version": "0.1.0",
+  "description": "Kingdom Clash — 3D online medieval kingdoms game",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "ws": "^8.18.0" }
+}
