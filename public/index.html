@@ -1534,12 +1534,12 @@ function salary(){return 20+S.rank*12}
 /* ================= ONLINE (multiplayer) ================= */
 const HIGH_RANK=7;const NET={lock:false,authed:false,newAcc:false,rules:'',inF:false,ws:null,on:false,id:null,P:new Map(),ev:{xp:1,gold:1,name:''},t:0,back:1500,prof:''};
 function netUrl(){const q=new URLSearchParams(location.search).get('server');if(q)return q;if(location.protocol==='file:'||/claude|anthropic/.test(location.host))return null;return(location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws'}
-function netOpen(){const u=netUrl();if(!u)return Promise.resolve(false);return new Promise(res=>{let done=false;const fin=v=>{if(!done){done=true;res(v)}};let ws;try{ws=new WebSocket(u)}catch(e){return fin(false)}NET.ws=ws;
-  ws.onopen=()=>{NET.on=true;NET.back=1500;fin(true)};ws.onerror=()=>fin(false);
-  ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(_){return}netMsg(m)};
-  ws.onclose=()=>{const was=NET.on;NET.on=false;fin(false);for(const id of[...NET.P.keys()])netDel(id);netBadge();if(started&&was&&!NET.kicked){toast('🔌 انقطع الاتصال بالسيرفر — إعادة المحاولة...');setTimeout(netReconnect,NET.back)}};
+function netOpen(){const u=netUrl();if(!u)return Promise.resolve(false);if(NET.opening)return NET.opening;if(NET.ws&&NET.ws.readyState===1)return Promise.resolve(true);return NET.opening=new Promise(res=>{let done=false;const fin=v=>{if(!done){done=true;NET.opening=null;res(v)}};let ws;try{ws=new WebSocket(u)}catch(e){return fin(false)}NET.ws=ws;
+  ws.onopen=()=>{if(ws!==NET.ws)return;NET.on=true;NET.sockAuth=false;NET.id=null;NET.back=1500;fin(true)};ws.onerror=()=>fin(false);
+  ws.onmessage=e=>{if(ws!==NET.ws)return;let m;try{m=JSON.parse(e.data)}catch(_){return}netMsg(m)};
+  ws.onclose=()=>{if(ws!==NET.ws){fin(false);return}const was=NET.on;NET.on=false;fin(false);for(const id of[...NET.P.keys()])netDel(id);netBadge();if(!NET.kicked&&(NET.authed||started)){if(started&&was)toast('🔌 انقطع الاتصال بالسيرفر — إعادة المحاولة...');setTimeout(netReconnect,NET.back)}};
   setTimeout(()=>fin(false),9000)})}
-async function netReconnect(){if(NET.kicked)return;const ok=await netOpen();if(!ok){NET.back=Math.min(NET.back*2,20000);setTimeout(netReconnect,NET.back);return}const a=netAuthStore();if(a)netSend({t:'login',name:a.name,token:a.token})}
+async function netReconnect(){if(NET.kicked||NET.rc)return;NET.rc=true;const ok=await netOpen();NET.rc=false;if(!ok){NET.back=Math.min(NET.back*2,20000);setTimeout(netReconnect,NET.back);return}const a=netAuthStore();if(a)netSend({t:'login',name:a.name,token:a.token})}
 function netAuthStore(){try{return JSON.parse(localStorage.getItem('kc_auth')||'null')}catch(e){return null}}
 function netLogin(){return new Promise(res=>{NET.authRes=res;const a=netAuthStore();
   const form=()=>{$('#lbar').style.display='none';$('#lmsg').textContent='';const b=$('#loginBox');b.style.display='block';if(S.name&&!$('#lgName').value)$('#lgName').value=S.name;
@@ -1547,11 +1547,14 @@ function netLogin(){return new Promise(res=>{NET.authRes=res;const a=netAuthStor
       const local=S.name&&S.name.toLowerCase()===n.toLowerCase()?S:Object.assign(defS(),{kingdom:S.kingdom||''});netSend({t:'login',name:n,pass:pw,local})}};
   NET.loginForm=form;if(a)netSend({t:'login',name:a.name,token:a.token});else form()})}
 function netAuth(m){if(!m.ok){const E={wrong:'كلمة السر غير صحيحة',short:'كلمة السر قصيرة (4 أحرف على الأقل)',name:'الاسم قصير',banned:'هذا الحساب محظور',token:''};if(m.err==='token'){try{localStorage.removeItem('kc_auth')}catch(e){}if(NET.loginForm)NET.loginForm()}else $('#lgErr').textContent=E[m.err]||'خطأ';return}
-  try{localStorage.setItem('kc_auth',JSON.stringify({name:m.name,token:m.token}))}catch(e){}NET.authed=true;
+  try{localStorage.setItem('kc_auth',JSON.stringify({name:m.name,token:m.token}))}catch(e){}NET.authed=true;NET.sockAuth=true;
   if(started){netJoin();return}
+  if(!NET.authRes&&S.name){return}
   const d=defS();S=Object.assign(d,m.save||{});S.stats=Object.assign(d.stats,S.stats||{});S.medals=S.medals||[];S.name=m.name;NET.newAcc=!!m.isNew;
   $('#loginBox').style.display='none';$('#lbar').style.display='';if(NET.authRes){NET.authRes();NET.authRes=null}}
-function netJoin(){if(NET.on&&NET.authed)netSend(Object.assign({t:'hello'},netProf()))}
+function netJoin(){if(NET.on&&NET.sockAuth){NET.joinT=performance.now();netSend(Object.assign({t:'hello'},netProf()))}else if(NET.authed&&!NET.on)netReconnect()}
+setInterval(()=>{if(NET.on)netSend({t:'ping'})},20000);
+setInterval(()=>{if(started&&NET.on&&NET.sockAuth&&NET.id==null&&performance.now()-(NET.joinT||0)>6000)netJoin()},3000);
 setInterval(()=>{if(NET.authed&&NET.dirty&&NET.on){NET.dirty=false;netSend({t:'save',s:S})}},3000);
 addEventListener('visibilitychange',()=>{if(document.hidden&&NET.authed&&NET.on){NET.dirty=false;netSend({t:'save',s:S})}});
 function pvpOK(r){return r.ent&&r.seen&&!r.hid&&r.k!==HOMEK.id&&Math.hypot(P.pos.x-WC.x,P.pos.z-WC.z)<520&&Math.hypot(r.tx-WC.x,r.tz-WC.z)<520}
@@ -1914,7 +1917,7 @@ function showStart(){$('#startBox').style.display='block';
     banner(HOMEK.ic+' '+HOMEK.n,S.pos?'استيقظت في بيتك':'أهلًا بك أيها الجندي '+S.name+' — لوحة المهام أمامك');
     chatMsg('النظام','مرحبًا بك في '+HOMEK.n+'! خذ مهمة من لوحة المهام في الساحة.','#86efac')}}
 init().catch(e=>{$('#lmsg').textContent='حدث خطأ: '+e.message;console.error(e)});
-window.__kc={CH,openChat,chTabSet:t=>{chTab=t;chRender()},NET,th:(x,z)=>{const p=toL(x,z);return terrainH(p.x,p.z)},toC,toL,NPCS,labels:()=>LABELS,ENEMIES,raiseFlag,openDove,die:()=>die('اختبار'),cold:v=>{P.cold=v},addItem:(k,n)=>addItem(k,n),G:()=>G,setType:t=>{S.stype=t;setPlayerChar()},P,S,cam,SPOT,crime,enterTraining,openBar,openBoard,BALS,mountBal,fireBal:()=>fireBal(),ANIMALS,HORSE,setT:v=>{forceT=v},drawBig,openMap:()=>{drawBig();openM('mMap')},setPos:(x,y,z,yaw)=>{P.pos.set(x,y,z);if(yaw!=null)cam.yaw=yaw},night:v=>{night=v},quest:id=>{S.quest={id,step:0}}};
+window.__kc={dbg:()=>JSON.stringify({started,sa:NET.sockAuth,rc:NET.rc,op:!!NET.opening,on:NET.on,id:NET.id}),CH,openChat,chTabSet:t=>{chTab=t;chRender()},NET,th:(x,z)=>{const p=toL(x,z);return terrainH(p.x,p.z)},toC,toL,NPCS,labels:()=>LABELS,ENEMIES,raiseFlag,openDove,die:()=>die('اختبار'),cold:v=>{P.cold=v},addItem:(k,n)=>addItem(k,n),G:()=>G,setType:t=>{S.stype=t;setPlayerChar()},P,S,cam,SPOT,crime,enterTraining,openBar,openBoard,BALS,mountBal,fireBal:()=>fireBal(),ANIMALS,HORSE,setT:v=>{forceT=v},drawBig,openMap:()=>{drawBig();openM('mMap')},setPos:(x,y,z,yaw)=>{P.pos.set(x,y,z);if(yaw!=null)cam.yaw=yaw},night:v=>{night=v},quest:id=>{S.quest={id,step:0}}};
 })();
 </script>
 </body>

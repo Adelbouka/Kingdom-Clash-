@@ -86,7 +86,7 @@ const inForest = p => Math.hypot(p.x - WCC.x, p.z - WCC.z) < FOREST_R;
 function bySession(name) { const k = keyOf(name); for (const [id, p] of players) if (p.acc && keyOf(p.acc.name) === k) return [id, p]; return null; }
 
 function adminList() {
-  const list = [...players].filter(([, p]) => p.joined).map(([id, p]) => ({ ...pub(id, p), x: Math.round(p.x), z: Math.round(p.z), gold: p.acc && p.acc.save ? p.acc.save.gold : 0 }));
+  const list = [...players].filter(([, p]) => p.joined || p.acc).map(([id, p]) => ({ ...pub(id, p), name: p.acc ? p.acc.name : p.name, k: p.joined ? p.k : (p.acc && p.acc.save && p.acc.save.kingdom) || p.k, joined: p.joined, x: Math.round(p.x), z: Math.round(p.z), gold: p.acc && p.acc.save ? p.acc.save.gold : 0 }));
   const s = JSON.stringify({ t: 'list', lock: meta.lock, p: list, ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, storage: store.kind });
   for (const a of admins) if (a.readyState === 1) a.send(s);
 }
@@ -144,7 +144,9 @@ wss.on('connection', (ws, req) => {
   const id = nextId++;
   const p = { ws, acc: null, name: 'جندي', k: 'ice', st: 'sword', r: 0, role: '', x: 0, y: 0, z: 0, f: 0, a: 'Idle', h: 0, hid: 1, lastChat: 0, lastHit: 0, lastSave: 0, joined: false };
   players.set(id, p);
-  ws.on('message', async d => {
+  let chain = Promise.resolve(); // handle this player's messages strictly in order
+  ws.on('message', d => { chain = chain.then(() => handle(d)).catch(e => console.error(e)); });
+  async function handle(d) {
     let m; try { m = JSON.parse(d); } catch (e) { return; }
     try {
       if (m.t === 'login') {
@@ -164,7 +166,7 @@ wss.on('connection', (ws, req) => {
         const old = bySession(name); if (old && old[0] !== id) { send(old[1].ws, { t: 'kick', m: 'تم الدخول إلى حسابك من جهاز آخر' }); old[1].ws.close(); }
         const token = crypto.randomBytes(18).toString('hex');
         acc.tokens = [...(acc.tokens || []), token].slice(-5); acc.save = acc.save || {}; acc.save.name = acc.name;
-        p.acc = acc; await persist(p);
+        p.acc = acc; await persist(p); adminList();
         send(ws, { t: 'auth', ok: true, name: acc.name, token, save: acc.save, isNew });
       } else if (!p.acc) {
         return; // everything else needs a logged-in account
@@ -227,7 +229,7 @@ wss.on('connection', (ws, req) => {
         all({ t: 'c', id: 0, name: '⚔️ غابة النزاع', k: k.k, r: 0, m: k.name + ' (' + KN[k.k] + ') هزم ' + p.name + ' (' + KN[p.k] + ')' });
       }
     } catch (e) { console.error(e); }
-  });
+  }
   ws.on('close', () => { players.delete(id); if (p.joined) all({ t: 'del', id }); persist(p); adminList(); });
 });
 
