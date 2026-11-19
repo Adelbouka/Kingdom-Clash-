@@ -22,6 +22,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;borde
   <label>الخبرة ×<select id="evx"><option>1</option><option>2</option><option>3</option></select></label>
   <label>الذهب ×<select id="evg"><option>1</option><option>2</option><option>3</option></select></label>
   <button id="evB">تفعيل</button><button class="r" id="evOff">إيقاف</button></div><div class="mut" id="evNow"></div></div>
+ <div class="card"><b>🔒 إغلاق القلاع</b> <span class="mut">(عند الإغلاق لا يخرج إلا القادة: رتبة نقيب فما فوق)</span><div class="row" id="locks" style="margin-top:6px"></div></div>
  <div class="card"><b>📜 قوانين المملكة</b> <span class="mut">(تظهر للاعبين في الإعدادات)</span><textarea id="rules" rows="4" style="width:100%;margin-top:6px;box-sizing:border-box" maxlength="1500" placeholder="مثال: ممنوع الاعتداء على جنود مملكتك • احترم الجميع في الدردشة"></textarea><button id="rulesB" style="margin-top:6px">حفظ القوانين</button></div>
  <div class="card"><b>💰 ذهب ورتبة وحظر (بالاسم، حتى لو اللاعب غير متصل)</b>
   <div class="row" style="margin-top:6px"><input id="gn" placeholder="اسم اللاعب" style="flex:1"><input id="ga" type="number" placeholder="+ذهب أو -ذهب" style="width:120px"><button id="gB">ذهب</button></div>
@@ -35,6 +36,7 @@ let ws;$('#key').value=localStorage.getItem('kc_admin')||'';
 $('#go').onclick=()=>{const k=$('#key').value.trim();localStorage.setItem('kc_admin',k);ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws?admin='+encodeURIComponent(k));
  ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.t==='denied'){alert('المفتاح غير صحيح');return}if(m.t==='list'){$('#login').style.display='none';$('#panel').style.display='block';
   $('#st').textContent='متصل • '+m.p.length+' لاعب أونلاين';$('#evNow').textContent=m.ev.xp>1||m.ev.gold>1?('الحدث الحالي: '+(m.ev.name||'')+' — خبرة ×'+m.ev.xp+' ذهب ×'+m.ev.gold):'لا يوجد حدث الآن';
+  $('#locks').innerHTML=['ice','fire','sand'].map(k=>`<button data-lk="${k}" class="${m.lock&&m.lock[k]?'r':''}">${KN[k]}: ${m.lock&&m.lock[k]?'🔒 مغلقة':'🔓 مفتوحة'}</button>`).join('');document.querySelectorAll('[data-lk]').forEach(b=>b.onclick=()=>ws.send(JSON.stringify({t:'lock',k:b.dataset.lk,on:!(m.lock&&m.lock[b.dataset.lk])})));
   $('#pl').innerHTML=m.p.map(p=>`<tr><td>${p.name.replace(/</g,'')}</td><td>${KN[p.k]||p.k}</td><td>${RN[p.r]||p.r}</td><td>${p.gold||0}</td><td><button data-j="${p.id}">سجن</button> <button class="r" data-k="${p.id}">طرد</button></td></tr>`).join('')||'<tr><td colspan=5 class="mut">لا يوجد لاعبون الآن</td></tr>';
   document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const s=prompt('مدة السجن بالثواني','120');if(!s)return;const w=prompt('السبب','مخالفة القوانين')||'';ws.send(JSON.stringify({t:'jail',id:b.dataset.j,secs:+s,why:w}))});
   if(document.activeElement!==$('#rules'))$('#rules').value=m.rules||'';$('#st').textContent+=' • التخزين: '+(m.storage==='mongo'?'قاعدة بيانات دائمة ✅':'مؤقت ⚠️ (يُمسح عند إعادة النشر)')+' • الحصن: '+(KN[m.fort&&m.fort.owner]||'-');

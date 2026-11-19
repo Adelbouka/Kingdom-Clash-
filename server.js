@@ -8,6 +8,8 @@ const KS = ['ice', 'fire', 'sand'];
 const KN = { ice: 'مملكة الجليد', fire: 'مملكة النار', sand: 'مملكة الرمال' };
 const WCC = { x: 0, z: 1150 }; // centre of the Contested Forest (shared world coordinates)
 const FOREST_R = 520;
+const CASTLE = { ice: { x: 0, z: 0 }, fire: { x: 996, z: 1725 }, sand: { x: -996, z: 1725 } };
+const SPY_R = 330;
 
 /* ---------------- storage: MongoDB if MONGODB_URI is set, otherwise a JSON file ---------------- */
 const store = (() => {
@@ -57,15 +59,27 @@ const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 64 * 1024 });
 /* ---------------- shared state ---------------- */
 const players = new Map(); // id -> session
 const admins = new Set();
-const meta = { ev: { xp: 1, gold: 1, name: '' }, motd: '', rules: '', fort: { owner: 'fire', t: Date.now() } };
+const meta = { lock: { ice: false, fire: false, sand: false }, mail: { ice: [], fire: [], sand: [] }, ev: { xp: 1, gold: 1, name: '' }, motd: '', rules: '', fort: { owner: 'fire', t: Date.now() }, food: { ice: 72, fire: 72, sand: 72 }, plots: { ice: [], fire: [], sand: [] } };
+const GQ_NEED = { gparade: 6, gwall: 3, gfort: 5, hunt: 3 };
+const NPLOTS = 16;
 store.ready.then(async () => { const m = await store.get('meta'); if (m) Object.assign(meta, m); }).catch(e => console.error(e));
 const saveMeta = () => store.put('meta', meta).catch(() => { });
+function kAll(k, o) { const s = JSON.stringify(o); for (const [, p] of players) if (p.joined && p.k === k && p.ws.readyState === 1) p.ws.send(s); }
+function setFood(k, v) { meta.food[k] = Math.max(0, Math.min(100, Math.round(v * 10) / 10)); kAll(k, { t: 'food', k, v: meta.food[k] }); }
+function plotFor(p) { // houses only exist for players who are online: pick a free plot (prefer the one used last time)
+  const used = new Set(); for (const [, o] of players) if (o !== p && o.joined && o.k === p.k && o.plot >= 0) used.add(o.plot);
+  const last = p.acc.plots && p.acc.plots[p.k];
+  let i = (last != null && last >= 0 && last < NPLOTS && !used.has(last)) ? last : -1;
+  if (i < 0) for (let j = 0; j < NPLOTS; j++) if (!used.has(j)) { i = j; break; }
+  if (i >= 0) { p.acc.plots = p.acc.plots || {}; p.acc.plots[p.k] = i; }
+  return i;
+}
 let nextId = 1;
 const clean = (s, n) => String(s || '').replace(/[<>\u0000-\u001f]/g, '').trim().slice(0, n);
 const num = (v, a, b) => { v = +v; return isFinite(v) ? Math.max(a, Math.min(b, v)) : 0; };
 const send = (ws, o) => { if (ws.readyState === 1) ws.send(JSON.stringify(o)); };
 function all(o, except) { const s = JSON.stringify(o); for (const [id, p] of players) if (id !== except && p.joined && p.ws.readyState === 1) p.ws.send(s); }
-const pub = (id, p) => ({ id, name: p.name, k: p.k, st: p.st, r: p.r, role: p.role });
+const pub = (id, p) => ({ id, name: p.name, k: p.k, st: p.st, r: p.r, role: p.role, plot: p.plot == null ? -1 : p.plot });
 const hashPass = (pass, salt) => crypto.scryptSync(String(pass), salt, 32).toString('hex');
 const keyOf = n => 'acc:' + clean(n, 16).toLowerCase();
 const inForest = p => Math.hypot(p.x - WCC.x, p.z - WCC.z) < FOREST_R;
@@ -73,15 +87,33 @@ function bySession(name) { const k = keyOf(name); for (const [id, p] of players)
 
 function adminList() {
   const list = [...players].filter(([, p]) => p.joined).map(([id, p]) => ({ ...pub(id, p), x: Math.round(p.x), z: Math.round(p.z), gold: p.acc && p.acc.save ? p.acc.save.gold : 0 }));
-  const s = JSON.stringify({ t: 'list', p: list, ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, storage: store.kind });
+  const s = JSON.stringify({ t: 'list', lock: meta.lock, p: list, ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, storage: store.kind });
   for (const a of admins) if (a.readyState === 1) a.send(s);
 }
 async function persist(p) { if (p.acc) { p.acc.last = Date.now(); await store.put(keyOf(p.acc.name), p.acc).catch(e => console.error(e)); } }
+
+/* ---------------- chat translation (on demand, cached) ---------------- */
+const TRC = new Map();
+async function translate(text, to) {
+  const key = to + '|' + text; if (TRC.has(key)) return TRC.get(key);
+  let out = null;
+  try {
+    const r = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&dt=t&tl=' + encodeURIComponent(to) + '&q=' + encodeURIComponent(text), { signal: AbortSignal.timeout(6000) });
+    const j = await r.json(); out = (j[0] || []).map(x => x[0]).join('');
+  } catch (e) { }
+  if (!out) try {
+    const r = await fetch('https://api.mymemory.translated.net/get?langpair=autodetect|' + encodeURIComponent(to) + '&q=' + encodeURIComponent(text), { signal: AbortSignal.timeout(6000) });
+    const j = await r.json(); out = j && j.responseData && j.responseData.translatedText;
+  } catch (e) { }
+  if (out) { TRC.set(key, out); if (TRC.size > 5000) TRC.delete(TRC.keys().next().value); }
+  return out;
+}
 
 /* ---------------- admin ---------------- */
 async function adminMsg(ws, m) {
   if (m.t === 'ann') { const t = clean(m.m, 200); if (t) all({ t: 'ann', m: t }); }
   if (m.t === 'ev') { meta.ev = { xp: num(m.xp, 1, 5), gold: num(m.gold, 1, 5), name: clean(m.name, 60) }; all({ t: 'ev', ev: meta.ev }); saveMeta(); }
+  if (m.t === 'lock' && KS.includes(m.k)) { meta.lock[m.k] = !!m.on; kAll(m.k, { t: 'lock', k: m.k, on: meta.lock[m.k] }); saveMeta(); }
   if (m.t === 'motd') { meta.motd = clean(m.m, 200); saveMeta(); }
   if (m.t === 'rules') { meta.rules = clean(m.m, 1500); all({ t: 'rules', m: meta.rules }); saveMeta(); }
   if (m.t === 'kick') { const p = players.get(+m.id); if (p) { send(p.ws, { t: 'kick', m: clean(m.m, 120) }); p.ws.close(); } }
@@ -144,7 +176,9 @@ wss.on('connection', (ws, req) => {
         p.name = p.acc.name; p.k = KS.includes(m.k) ? m.k : 'ice'; p.st = clean(m.st, 8); p.r = num(m.r, 0, 13) | 0; p.role = clean(m.role, 10);
         if (m.t === 'hello' && !p.joined) {
           p.joined = true;
-          send(ws, { t: 'welcome', id, ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, others: [...players].filter(([i, o]) => i !== id && o.joined).map(([i, o]) => pub(i, o)) });
+          p.plot = plotFor(p);
+          send(ws, { t: 'welcome', id, lock: meta.lock, plot: p.plot, food: meta.food[p.k], ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, others: [...players].filter(([i, o]) => i !== id && o.joined).map(([i, o]) => pub(i, o)) });
+          if (((p.acc.save && p.acc.save.rank) || 0) >= 12) for (const ml of (meta.mail[p.k] || [])) send(ws, { t: 'mail', old: 1, ...ml });
           all({ t: 'add', ...pub(id, p) }, id);
         } else all({ t: 'upd', ...pub(id, p) }, id);
         adminList();
@@ -152,7 +186,10 @@ wss.on('connection', (ws, req) => {
         p.x = num(m.x, -5000, 5000); p.y = num(m.y, -50, 400); p.z = num(m.z, -5000, 5000); p.f = num(m.f, -10, 10); p.a = clean(m.a, 32); p.h = m.h ? 1 : 0; p.hid = m.hid ? 1 : 0;
       } else if (m.t === 'c') {
         const now = Date.now(); if (now - p.lastChat < 700) return; p.lastChat = now;
-        const t = clean(m.m, 120); if (t) all({ t: 'c', id, name: p.name, k: p.k, r: p.r, m: t });
+        const t = clean(m.m, 160); if (!t) return;
+        const ch = m.ch === p.k ? p.k : 'all'; const msg = { t: 'c', id, name: p.name, k: p.k, r: p.r, m: t, ch };
+        if (ch === 'all') all(msg);
+        else { const s = JSON.stringify(msg); for (const [, o] of players) { if (!o.joined || o.ws.readyState !== 1) continue; const spy = o.k !== ch && Math.hypot(o.x - CASTLE[ch].x, o.z - CASTLE[ch].z) < SPY_R; if (o.k === ch || spy) o.ws.send(s); } }
       } else if (m.t === 'fort') {
         if (!p.joined || Math.hypot(p.x - WCC.x, p.z - WCC.z) > 70 || meta.fort.owner === p.k) return;
         meta.fort = { owner: p.k, t: Date.now(), by: p.name }; saveMeta();
@@ -162,6 +199,28 @@ wss.on('connection', (ws, req) => {
         if (!tg || !tg.joined || !p.joined || tg.k === p.k || now - p.lastHit < 250) return; p.lastHit = now;
         if (!inForest(p) || !inForest(tg) || Math.hypot(p.x - tg.x, p.z - tg.z) > 45) return;
         send(tg.ws, { t: 'hurt', d: num(m.d, 1, 60) | 0, by: p.name, k: p.k, id });
+      } else if (m.t === 'tr') {
+        const now = Date.now(); if (now - (p.lastTr || 0) < 400) return; p.lastTr = now;
+        const to = ['ar', 'en', 'fr', 'es', 'pt', 'tr', 'ru'].includes(m.to) ? m.to : 'en';
+        const text = clean(m.text, 300); const res = text ? await translate(text, to) : null;
+        send(ws, { t: 'trr', id: m.id, text: res });
+      } else if (m.t === 'spyCaught') {
+        const k = KS.includes(m.k) ? m.k : null; if (!k || k === p.k) return;
+        kAll(k, { t: 'c', id: 0, name: '🕵️ الحرّاس', k, r: 0, m: 'قبضنا على جاسوس من ' + KN[p.k] + ': ' + p.name, ch: k });
+      } else if (m.t === 'mail') {
+        const to = KS.includes(m.to) ? m.to : null; const rank = (p.acc.save && p.acc.save.rank) || 0;
+        if (!to || to === p.k || rank < 12) return; const t = clean(m.m, 500); if (!t) return;
+        const mail = { from: p.name, fk: p.k, m: t, t: Date.now() };
+        const box = meta.mail[to] || (meta.mail[to] = []); box.push(mail); if (box.length > 40) box.shift(); saveMeta();
+        for (const [, o] of players) if (o.joined && o.k === to && o.acc && ((o.acc.save && o.acc.save.rank) || 0) >= 12) send(o.ws, { t: 'mail', ...mail });
+      } else if (m.t === 'food') {
+        const now = Date.now(); if (!p.joined || now - (p.lastFood || 0) < 800) return; p.lastFood = now;
+        setFood(p.k, meta.food[p.k] + num(m.d, 0, 20)); saveMeta();
+      } else if (m.t === 'gq') {
+        const need = GQ_NEED[m.q]; if (!need || !p.joined) return; const now = Date.now(); p.gq = { q: m.q, s: num(m.s, 0, 20) | 0, t: now };
+        const grp = [...players.values()].filter(o => o.joined && o.k === p.k && o.gq && o.gq.q === p.gq.q && o.gq.s === p.gq.s && now - o.gq.t < 4000);
+        for (const o of grp) send(o.ws, { t: 'gqn', q: p.gq.q, s: p.gq.s, n: grp.length, need });
+        if (grp.length >= need) for (const o of grp) { send(o.ws, { t: 'gqok', q: p.gq.q, s: p.gq.s, n: grp.length }); o.gq = null; }
       } else if (m.t === 'died') {
         const k = players.get(+m.by); if (!k || k.k === p.k) return;
         send(k.ws, { t: 'kill', name: p.name, k: p.k });
@@ -178,6 +237,8 @@ setInterval(() => {
   const arr = []; for (const [id, p] of players) if (p.joined) arr.push([id, Math.round(p.x * 10) / 10, Math.round(p.y * 10) / 10, Math.round(p.z * 10) / 10, Math.round(p.f * 100) / 100, p.a, p.h, p.hid]);
   all({ t: 'snap', p: arr });
 }, 100);
+/* kingdom food slowly decreases (1% every 90 s) — hunting and cooking fill it */
+setInterval(() => { for (const k of KS) if (meta.food[k] > 0) setFood(k, meta.food[k] - 1); saveMeta(); }, 90000);
 /* enemy kingdoms try to retake the fort after 40 minutes */
 setInterval(() => {
   if (Date.now() - meta.fort.t < 40 * 60 * 1000) return;
