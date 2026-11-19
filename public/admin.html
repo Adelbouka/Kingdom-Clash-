@@ -22,7 +22,11 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;borde
   <label>الخبرة ×<select id="evx"><option>1</option><option>2</option><option>3</option></select></label>
   <label>الذهب ×<select id="evg"><option>1</option><option>2</option><option>3</option></select></label>
   <button id="evB">تفعيل</button><button class="r" id="evOff">إيقاف</button></div><div class="mut" id="evNow"></div></div>
- <div class="card"><b>👥 اللاعبون المتصلون</b><table><thead><tr><th>الاسم</th><th>المملكة</th><th>الرتبة</th><th>المكان</th><th></th></tr></thead><tbody id="pl"></tbody></table></div>
+ <div class="card"><b>📜 قوانين المملكة</b> <span class="mut">(تظهر للاعبين في الإعدادات)</span><textarea id="rules" rows="4" style="width:100%;margin-top:6px;box-sizing:border-box" maxlength="1500" placeholder="مثال: ممنوع الاعتداء على جنود مملكتك • احترم الجميع في الدردشة"></textarea><button id="rulesB" style="margin-top:6px">حفظ القوانين</button></div>
+ <div class="card"><b>💰 ذهب ورتبة وحظر (بالاسم، حتى لو اللاعب غير متصل)</b>
+  <div class="row" style="margin-top:6px"><input id="gn" placeholder="اسم اللاعب" style="flex:1"><input id="ga" type="number" placeholder="+ذهب أو -ذهب" style="width:120px"><button id="gB">ذهب</button></div>
+  <div class="row" style="margin-top:6px"><select id="rk"></select><button id="rB">غيّر الرتبة</button><button class="r" id="banB">حظر</button><button id="unbanB">رفع الحظر</button></div><div class="mut" id="msg"></div></div>
+ <div class="card"><b>👥 اللاعبون المتصلون</b><table><thead><tr><th>الاسم</th><th>المملكة</th><th>الرتبة</th><th>الذهب</th><th></th></tr></thead><tbody id="pl"></tbody></table></div>
 </div></div>
 <script>
 const $=s=>document.querySelector(s);const KN={ice:'❄️ الجليد',fire:'🔥 النار',sand:'🏜️ الرمال'};
@@ -31,9 +35,18 @@ let ws;$('#key').value=localStorage.getItem('kc_admin')||'';
 $('#go').onclick=()=>{const k=$('#key').value.trim();localStorage.setItem('kc_admin',k);ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws?admin='+encodeURIComponent(k));
  ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.t==='denied'){alert('المفتاح غير صحيح');return}if(m.t==='list'){$('#login').style.display='none';$('#panel').style.display='block';
   $('#st').textContent='متصل • '+m.p.length+' لاعب أونلاين';$('#evNow').textContent=m.ev.xp>1||m.ev.gold>1?('الحدث الحالي: '+(m.ev.name||'')+' — خبرة ×'+m.ev.xp+' ذهب ×'+m.ev.gold):'لا يوجد حدث الآن';
-  $('#pl').innerHTML=m.p.map(p=>`<tr><td>${p.name.replace(/</g,'')}</td><td>${KN[p.k]||p.k}</td><td>${RN[p.r]||p.r}</td><td class="mut">${p.x}, ${p.z}</td><td><button class="r" data-k="${p.id}">طرد</button></td></tr>`).join('')||'<tr><td colspan=5 class="mut">لا يوجد لاعبون الآن</td></tr>';
+  $('#pl').innerHTML=m.p.map(p=>`<tr><td>${p.name.replace(/</g,'')}</td><td>${KN[p.k]||p.k}</td><td>${RN[p.r]||p.r}</td><td>${p.gold||0}</td><td><button data-j="${p.id}">سجن</button> <button class="r" data-k="${p.id}">طرد</button></td></tr>`).join('')||'<tr><td colspan=5 class="mut">لا يوجد لاعبون الآن</td></tr>';
+  document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const s=prompt('مدة السجن بالثواني','120');if(!s)return;const w=prompt('السبب','مخالفة القوانين')||'';ws.send(JSON.stringify({t:'jail',id:b.dataset.j,secs:+s,why:w}))});
+  if(document.activeElement!==$('#rules'))$('#rules').value=m.rules||'';$('#st').textContent+=' • التخزين: '+(m.storage==='mongo'?'قاعدة بيانات دائمة ✅':'مؤقت ⚠️ (يُمسح عند إعادة النشر)')+' • الحصن: '+(KN[m.fort&&m.fort.owner]||'-');
   document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const r=prompt('سبب الطرد (اختياري)')||'';ws.send(JSON.stringify({t:'kick',id:b.dataset.k,m:r}))})}};
+ ws.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.t==='ok'||m.t==='err')$('#msg').textContent=m.m});
  ws.onclose=()=>{$('#st').textContent='انقطع الاتصال — أعد تحميل الصفحة'}};
+$('#rk').innerHTML=RN.map((r,i)=>`<option value="${i}">${r}</option>`).join('');
+$('#rulesB').onclick=()=>ws.send(JSON.stringify({t:'rules',m:$('#rules').value}));
+$('#gB').onclick=()=>ws.send(JSON.stringify({t:'gold',name:$('#gn').value.trim(),n:+$('#ga').value||0}));
+$('#rB').onclick=()=>ws.send(JSON.stringify({t:'rank',name:$('#gn').value.trim(),r:+$('#rk').value}));
+$('#banB').onclick=()=>{if(confirm('حظر '+$('#gn').value+'؟'))ws.send(JSON.stringify({t:'ban',name:$('#gn').value.trim(),on:true}))};
+$('#unbanB').onclick=()=>ws.send(JSON.stringify({t:'ban',name:$('#gn').value.trim(),on:false}));
 $('#annB').onclick=()=>{const v=$('#ann').value.trim();if(v){ws.send(JSON.stringify({t:'ann',m:v}));$('#ann').value=''}};
 $('#evB').onclick=()=>ws.send(JSON.stringify({t:'ev',name:$('#evn').value,xp:$('#evx').value,gold:$('#evg').value}));
 $('#evOff').onclick=()=>ws.send(JSON.stringify({t:'ev',name:'',xp:1,gold:1}));
