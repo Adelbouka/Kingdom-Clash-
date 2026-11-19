@@ -59,7 +59,7 @@ const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 64 * 1024 });
 /* ---------------- shared state ---------------- */
 const players = new Map(); // id -> session
 const admins = new Set();
-const meta = { lock: { ice: false, fire: false, sand: false }, mail: { ice: [], fire: [], sand: [] }, ev: { xp: 1, gold: 1, name: '' }, motd: '', rules: '', fort: { owner: 'fire', t: Date.now() }, food: { ice: 72, fire: 72, sand: 72 }, plots: { ice: [], fire: [], sand: [] }, kings: { ice: '', fire: '', sand: '' }, tax: { ice: 0, fire: 0, sand: 0 }, treasury: { ice: 0, fire: 0, sand: 0 }, decree: { ice: '', fire: '', sand: '' } };
+const meta = { lock: { ice: false, fire: false, sand: false }, mail: { ice: [], fire: [], sand: [] }, ev: { xp: 1, gold: 1, name: '' }, motd: '', rules: '', fort: { owner: 'fire', t: Date.now() }, food: { ice: 150, fire: 150, sand: 150 }, foodV: 2, plots: { ice: [], fire: [], sand: [] }, kings: { ice: '', fire: '', sand: '' }, tax: { ice: 0, fire: 0, sand: 0 }, treasury: { ice: 0, fire: 0, sand: 0 }, decree: { ice: '', fire: '', sand: '' } };
 const GQ_NEED = { gparade: 6, gwall: 3, gfort: 5, hunt: 3 };
 const NPLOTS = 16;
 /* group-quest lobbies: players register, the quest starts for everyone 15 s after the minimum is reached (more can still join) */
@@ -82,10 +82,11 @@ function lobTick() {
   }
 }
 setInterval(lobTick, 1000);
-store.ready.then(async () => { const m = await store.get('meta'); if (m) Object.assign(meta, m); }).catch(e => console.error(e));
+store.ready.then(async () => { const m = await store.get('meta'); if (m) Object.assign(meta, m); if (meta.foodV !== 2) { meta.foodV = 2; for (const k of KS) meta.food[k] = 150; } }).catch(e => console.error(e));
 const saveMeta = () => store.put('meta', meta).catch(() => { });
 function kAll(k, o) { const s = JSON.stringify(o); for (const [, p] of players) if (p.joined && p.k === k && p.ws.readyState === 1) p.ws.send(s); }
-function setFood(k, v) { meta.food[k] = Math.max(0, Math.min(100, Math.round(v * 10) / 10)); kAll(k, { t: 'food', k, v: meta.food[k] }); }
+const FOOD_MAX = 400;
+function setFood(k, v) { const old = Math.floor(meta.food[k]); meta.food[k] = Math.max(0, Math.min(FOOD_MAX, Math.round(v * 100) / 100)); if (Math.floor(meta.food[k]) !== old) kAll(k, { t: 'food', k, v: Math.floor(meta.food[k]) }); }
 function plotFor(p) { // houses only exist for players who are online: pick a free plot (prefer the one used last time)
   const used = new Set(); for (const [, o] of players) if (o !== p && o.joined && o.k === p.k && o.plot >= 0) used.add(o.plot);
   const last = p.acc.plots && p.acc.plots[p.k];
@@ -204,7 +205,7 @@ wss.on('connection', (ws, req) => {
         if (m.t === 'hello' && !p.joined) {
           p.joined = true;
           p.plot = plotFor(p);
-          send(ws, { t: 'welcome', id, lock: meta.lock, plot: p.plot, food: meta.food[p.k], ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, lobs: [...LOBBY.values()].filter(L => L.k === p.k).map(lobPub), ks: KING_PLAYERS ? kState(p.k) : null, others: [...players].filter(([i, o]) => i !== id && o.joined).map(([i, o]) => pub(i, o)) });
+          send(ws, { t: 'welcome', id, lock: meta.lock, plot: p.plot, food: Math.floor(meta.food[p.k]), ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, lobs: [...LOBBY.values()].filter(L => L.k === p.k).map(lobPub), ks: KING_PLAYERS ? kState(p.k) : null, others: [...players].filter(([i, o]) => i !== id && o.joined).map(([i, o]) => pub(i, o)) });
           if (((p.acc.save && p.acc.save.rank) || 0) >= 12) for (const ml of (meta.mail[p.k] || [])) send(ws, { t: 'mail', old: 1, ...ml });
           all({ t: 'add', ...pub(id, p) }, id);
         } else all({ t: 'upd', ...pub(id, p) }, id);
@@ -242,7 +243,11 @@ wss.on('connection', (ws, req) => {
         for (const [, o] of players) if (o.joined && o.k === to && o.acc && ((o.acc.save && o.acc.save.rank) || 0) >= 12) send(o.ws, { t: 'mail', ...mail });
       } else if (m.t === 'food') {
         const now = Date.now(); if (!p.joined || now - (p.lastFood || 0) < 800) return; p.lastFood = now;
-        setFood(p.k, meta.food[p.k] + num(m.d, 0, 20)); saveMeta();
+        setFood(p.k, meta.food[p.k] + num(m.d, 0, 60)); saveMeta();
+      } else if (m.t === 'eat') {
+        const now = Date.now(); if (!p.joined || now - (p.lastEat || 0) < 20000) return send(ws, { t: 'ate', ok: false, why: 'wait' }); 
+        if (meta.food[p.k] < 1) return send(ws, { t: 'ate', ok: false, why: 'empty' });
+        p.lastEat = now; setFood(p.k, meta.food[p.k] - 1); saveMeta(); send(ws, { t: 'ate', ok: true });
       } else if (m.t === 'lobJoin') {
         const need = GQ_NEED[m.q]; if (!need || !p.joined) return;
         lobLeave(id, false);
@@ -262,7 +267,7 @@ wss.on('connection', (ws, req) => {
           const mem = [...players.values()].filter(o => o.joined && o.k === k); const g = num(m.g, 0, meta.treasury[k] || 0) | 0; const each = Math.floor(g / Math.max(1, mem.length));
           if (each < 1) return; meta.treasury[k] -= each * mem.length; saveMeta();
           for (const o of mem) send(o.ws, { t: 'gift', g: each, by: p.name }); kAll(k, kState(k));
-        } else if (m.t === 'Kfood') { if ((meta.treasury[k] || 0) < 100) return; meta.treasury[k] -= 100; setFood(k, meta.food[k] + 15); saveMeta(); kAll(k, kState(k)); kAll(k, { t: 'ann', m: '👑 الملك اشترى طعامًا للمخزن من الخزينة (+15%)' }); }
+        } else if (m.t === 'Kfood') { if ((meta.treasury[k] || 0) < 100) return; meta.treasury[k] -= 100; setFood(k, meta.food[k] + 40); saveMeta(); kAll(k, kState(k)); kAll(k, { t: 'ann', m: '👑 الملك اشترى طعامًا للمخزن من الخزينة (+40 حصة)' }); }
         else if (m.t === 'Kpardon') { const t = bySession(clean(m.name, 16)); if (t && t[1].k === k) { send(t[1].ws, { t: 'pardon', by: p.name }); send(ws, { t: 'ann', m: '✅ عفوت عن ' + t[1].name }); } else send(ws, { t: 'ann', m: 'اللاعب غير موجود في مملكتك' }); }
         else if (m.t === 'Klock') { meta.lock[k] = !meta.lock[k]; kAll(k, { t: 'lock', k, on: meta.lock[k] }); saveMeta(); }
         else if (m.t === 'Kabdicate') { setKing(k, ''); }
@@ -297,8 +302,9 @@ setInterval(() => {
   const arr = []; for (const [id, p] of players) if (p.joined) arr.push([id, Math.round(p.x * 10) / 10, Math.round(p.y * 10) / 10, Math.round(p.z * 10) / 10, Math.round(p.f * 100) / 100, p.a, p.h, p.hid]);
   all({ t: 'snap', p: arr });
 }, 100);
-/* kingdom food slowly decreases (1% every 90 s) — hunting and cooking fill it */
-setInterval(() => { for (const k of KS) if (meta.food[k] > 0) setFood(k, meta.food[k] - 1); saveMeta(); }, 90000);
+/* realistic food: the storehouse holds portions. Every minute the castle garrison eats 0.15 and each soldier online eats 0.1
+   (1 portion per 10 min of play). Hunting fills it: each piece of meat = 5 portions. */
+setInterval(() => { for (const k of KS) { const n = [...players.values()].filter(o => o.joined && o.k === k).length; if (meta.food[k] > 0) setFood(k, meta.food[k] - 0.15 - 0.1 * n); } saveMeta(); }, 60000);
 /* enemy kingdoms try to retake the fort after 40 minutes */
 setInterval(() => {
   if (Date.now() - meta.fort.t < 40 * 60 * 1000) return;

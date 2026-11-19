@@ -147,7 +147,7 @@ button{font-family:inherit;cursor:pointer}
  #pcard{max-width:170px;min-width:120px;font-size:9.5px;line-height:1.25}#pcard .r.muted{font-size:9px}
  #quest{max-width:170px;font-size:9.5px;line-height:1.3}#quest .tag{font-size:9px}
  .toast{font-size:11px;padding:3px 9px}#banner .t{font-size:22px}#banner .s{font-size:11px}
- #mMap .box{width:min(560px,80vw)!important;padding:6px!important}#bigmap{max-height:68vh;width:auto!important;display:block;margin:auto}
+ #mMap .box{width:min(560px,80vw)!important;padding:6px!important}
 }
 .kcs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.kc{background:rgba(15,23,42,.9);border:2px solid var(--kc);border-radius:14px;padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:center}.kc b{font-size:18px}.kc span{font-size:12.5px;opacity:.85}.kc:hover{background:#1e293b;transform:translateY(-2px)}
 @media (max-height:500px){.kc{padding:7px}.kc b{font-size:14px}.kc span{font-size:10.5px}}
@@ -155,6 +155,45 @@ button{font-family:inherit;cursor:pointer}
 body.ltr .box>.x{left:auto;right:10px}
 body.ltr .toast,body.ltr .box,body.ltr #startBox,body.ltr #kPick,body.ltr #pcard,body.ltr #quest,body.ltr #chat{direction:ltr;text-align:left}
 .sw{display:flex;gap:4px;flex-wrap:wrap}.sw button{width:22px;height:22px;border-radius:50%;border:2px solid #334155;cursor:pointer}.sw button.on{border-color:#fbbf24;transform:scale(1.15)}
+
+/* ===== HUD v2 ===== */
+.li{width:18px;height:18px;display:block;flex:none}
+#pcard{top:8px;right:8px;width:244px;max-width:none;min-width:0;padding:8px 10px 7px;border-radius:16px;background:rgba(10,15,28,.66);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.10);box-shadow:0 4px 18px rgba(0,0,0,.35);font-size:11px;line-height:1.3}
+.pc-top{display:flex;gap:9px;align-items:center}
+.emb{flex:none;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fde68a,#b45309);border:2px solid #fcd34d;display:grid;place-items:center;color:#1c1917;position:relative;box-shadow:0 0 0 3px rgba(10,15,28,.6)}
+.emb .li{width:22px;height:22px;stroke-width:2.4}
+.emb .rn{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fcd34d;border:1px solid #fcd34d;border-radius:8px;font:800 9px/13px system-ui;padding:0 5px}
+.pc-main{flex:1;min-width:0}
+.pc-n{display:flex;justify-content:space-between;align-items:center;gap:6px}.pc-n b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk{font-size:10.5px;font-weight:800;color:#fcd34d;white-space:nowrap}
+.pc-sub{font-size:10px;color:#cbd5e1;display:flex;gap:6px;align-items:center;margin-bottom:2px;white-space:nowrap}.pc-sub .tag{font-size:9.5px;padding:0 6px}
+#pcard .br{display:flex;align-items:center;gap:5px;margin-top:3px}
+#pcard .br .li{width:12px;height:12px;stroke-width:2.6}
+#pcard .bar{flex:1;height:7px;border-radius:6px;background:rgba(255,255,255,.12);margin:0}#pcard .bar i{border-radius:6px}
+#pcard .bar.xp{height:4px}
+#tmpR .bi{width:auto;height:auto;filter:none}
+.bn{font:700 9.5px system-ui;min-width:26px;text-align:center;color:#e2e8f0;white-space:nowrap}
+.pc-res{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08)}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.07);font:700 10.5px system-ui;color:#e2e8f0;white-space:nowrap}
+.pill .li{width:12px;height:12px;stroke-width:2.4}.pill b,.bn{direction:ltr;unicode-bidi:isolate}.pill.warn{color:#fca5a5;background:rgba(239,68,68,.15)}
+#pcard.mini .pc-res,#pcard.mini #xpB,#pcard.mini .pc-sub,#pcard.mini .br:has(#xpB){display:none}
+#lbtns{top:150px;left:8px;display:grid;grid-template-columns:repeat(3,38px);gap:6px;flex-direction:unset}
+.rb{width:38px;height:38px;border-radius:12px;background:rgba(10,15,28,.66);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.10);box-shadow:0 3px 10px rgba(0,0,0,.3);color:#e2e8f0;display:grid;place-items:center;padding:0;font-size:0}
+.rb:active{transform:scale(.94)}.rb.on{color:#fbbf24;border-color:rgba(251,191,36,.5)}
+.rb .dot{top:-3px;left:-3px}
+#bmWrap{position:relative;width:min(100%,72vh);margin:auto;aspect-ratio:1}#bigmap{width:100%;height:100%;display:block;border-radius:12px;background:#dbe7f3;touch-action:none;cursor:grab}
+#bmZ{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:6px}#bmZ button{width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.2);background:rgba(10,15,28,.75);color:#fff;font:700 20px/1 system-ui;cursor:pointer}
+#bmHint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:11px;background:rgba(10,15,28,.6);color:#e2e8f0;padding:2px 10px;border-radius:999px;white-space:nowrap;pointer-events:none}
+#bagN{display:block}#bagN,.rb .dot.cnt{width:auto;min-width:15px;height:15px;padding:0 4px;font:800 9.5px/15px system-ui;color:#fff;text-align:center;border-radius:8px}
+.rb.on{background:rgba(245,158,11,.25)}
+#mini{top:8px;left:8px;width:132px;height:132px;border:3px solid rgba(10,15,28,.8);box-shadow:0 0 0 1px rgba(255,255,255,.15),0 4px 14px rgba(0,0,0,.4)}
+@media (max-height:500px){
+ #pcard{width:216px;padding:6px 8px 5px;border-radius:14px;max-width:none;min-width:0;font-size:10px}
+ .emb{width:38px;height:38px}.emb .li{width:19px;height:19px}
+ .pc-n b{font-size:12px}#pcard .bar{height:6px;margin:0}#pcard .bar.xp{height:3px}
+ .pc-res{margin-top:5px;padding-top:4px}.pill{font-size:10px;padding:1px 6px}
+ #mini{width:112px;height:112px}#lbtns{top:128px;grid-template-columns:repeat(3,34px);gap:5px}#mMap .box{width:min(560px,92vw)!important}#bmWrap{width:min(100%,78vh)}.rb{width:34px;height:34px;border-radius:11px}.rb .li{width:16px;height:16px}
+}
 #load>:first-child{margin-top:auto}#load>:last-child{margin-bottom:auto}
 @media (max-height:500px){
  #load{gap:5px;padding:8px}#load h1{font-size:24px}#load .sub{display:none}
@@ -197,22 +236,28 @@ body.ltr .toast,body.ltr .box,body.ltr #startBox,body.ltr #kPick,body.ltr #pcard
 
 <div id="netB" class="ui" style="display:none;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(10,16,30,.75);border:1px solid #22c55e;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700"></div>
 <div id="zone" class="ui">❄️ مملكة الجليد</div><div id="clock" class="ui">🕗 08:00</div><div id="qarrow" class="ui"><div class="ar">▲</div><div class="dt"></div></div>
-<canvas id="mini" class="ui" width="224" height="224"></canvas>
+<canvas id="mini" class="ui" width="300" height="300"></canvas>
 <div id="lbtns" class="ui">
-  <button class="rb" id="bChat" title="الدردشة">💬</button><button class="rb" id="bBag" title="الحقيبة" style="display:none">🎒<span class="dot" id="bagN" style="display:block;width:auto;height:auto;padding:0 4px;font-size:10px;line-height:14px;color:#fff"></span></button>
-  <button class="rb" id="bView" title="المنظور">👁️</button>
-  
-  <button class="rb" id="bSet" title="الإعدادات">⚙️</button>
-  <button class="rb" id="bFull" title="ملء الشاشة">⛶</button>
-  <button class="rb" id="bLamp" title="الفانوس">🔦</button>
-  <button class="rb" id="bKing" title="العرش" style="display:none">👑</button>
+  <button class="rb" id="bChat" title="الدردشة"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /> <path d="M7 11h10" /> <path d="M7 15h6" /> <path d="M7 7h8" /></svg></button><button class="rb" id="bBag" title="الحقيبة" style="display:none"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" /> <path d="M8 10h8" /> <path d="M8 18h8" /> <path d="M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6" /> <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /></svg><span class="dot" id="bagN"></span></button><button class="rb" id="bView" title="المنظور"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2" /> <path d="M17 3h2a2 2 0 0 1 2 2v2" /> <path d="M21 17v2a2 2 0 0 1-2 2h-2" /> <path d="M7 21H5a2 2 0 0 1-2-2v-2" /> <circle cx="12" cy="12" r="1" /> <path d="M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0" /></svg></button><button class="rb" id="bSet" title="الإعدادات"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg></button><button class="rb" id="bFull" title="ملء الشاشة"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3" /> <path d="M21 8V5a2 2 0 0 0-2-2h-3" /> <path d="M3 16v3a2 2 0 0 0 2 2h3" /> <path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg></button><button class="rb" id="bLamp" title="الفانوس"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13v1" /> <path d="M17 2a1 1 0 0 1 1 1v4a3 3 0 0 1-.6 1.8l-.6.8A4 4 0 0 0 16 12v8a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-8a4 4 0 0 0-.8-2.4l-.6-.8A3 3 0 0 1 6 7V3a1 1 0 0 1 1-1z" /> <path d="M6 6h12" /></svg></button><button class="rb" id="bKing" title="العرش" style="display:none"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /> <path d="M5 21h14" /></svg></button>
 </div>
 <div id="rot"><div class="ph">📱</div><div>اقلب هاتفك بالعرض للعب</div><div style="font-size:13px;opacity:.7">اللعبة مصممة للشاشة الأفقية لتكون سلسة</div></div>
 <div id="pcard" class="ui" title="اضغط لتصغير البطاقة">
-  <div class="r"><b id="pName">—</b><span id="pRank" class="tag gold">جندي</span></div>
-  <div class="r muted"><span id="pProf"></span><span>🪙 <b id="pGold">0</b></span></div>
-  <div id="pRole" class="r" style="display:none"></div><div class="br"><svg class="bi" viewBox="0 0 512 512" style="color:#f43f5e"><path fill="currentColor" d="M366.688 30.027q-1.515-.016-3.034.004h.002c-41.495.563-83.634 22.155-110.844 69.282c-41.912-117.77-236.49-76.29-232 64.5c.64 20.068 5.132 38.987 12.454 56.917h76.45l21.22-74.126l26.375 90.134l18.46-64.312l17.238 48.303H328.1l21.222-74.126l26.375 90.13l18.46-64.308l17.238 48.303h72.517c7.097-18.183 10.927-37.136 10.307-56.917c-2.61-83.04-63.874-133.082-127.533-133.786zM131.125 211.34l-7.842 27.39h-81.58c54.51 103.006 197.737 172.59 216.172 241.395c16.782-62.62 165.07-139.482 217.855-241.396h-77.023l-2.69-7.542l-20.154 70.208l-26.353-90.054l-7.84 27.387H180.32l-2.69-7.54l-20.15 70.206l-26.355-90.056z"/></svg><div id="hpB" class="bar"><i style="width:100%"></i></div></div><div class="br"><svg class="bi" viewBox="0 0 512 512" style="color:#facc15"><path fill="currentColor" d="M20.72 19.34v39.72L151.6 132.9l94.9-45.12L151 19.34zm196.98.1L313 76.78C226.5 118 135.1 161.4 57.53 198.3l161.57 86.1l59.6-39.2l-39.4-34.9c82.3-40.6 168.3-83.5 241.8-119.93l-93.6-70.93zM361.9 170.5l-76.5 37.9l44.9 25.3c-54.2 35.6-111.8 73.6-160.6 105.7l325.2 154.8L307.5 347c57.6-32.3 117.5-65.9 168.8-94.6zm13.2 160.1l-33.9 18.9l139.3 74.3c-35.1-31.1-70.3-62.2-105.4-93.2"/></svg><div id="stB" class="bar" style="height:6px"><i style="width:100%"></i></div></div>
-  <div class="br" id="tmpR" style="display:none"><svg class="bi" viewBox="0 0 512 512"><path fill="currentColor" d="M256 16c-35 0-64 29-64 64v214c-30 20-48 54-48 90 0 62 50 112 112 112s112-50 112-112c0-36-18-70-48-90V80c0-35-29-64-64-64zm0 32c18 0 32 14 32 32v232l8 5c25 14 40 40 40 67 0 44-36 80-80 80s-80-36-80-80c0-27 15-53 40-67l8-5V80c0-18 14-32 32-32zm-16 112v166c-21 7-36 27-36 50 0 29 23 52 52 52s52-23 52-52c0-23-15-43-36-50V160z"/></svg><div class="bar" style="height:5px"><i style="width:0"></i></div></div><div id="xpB" class="bar"><i style="width:0"></i></div><div class="r muted" style="font-size:11px"><span id="xpT"></span><span id="foodT"></span></div><div class="r muted" style="font-size:11px"><span id="inT"></span><span id="outT"></span></div>
+  <div class="pc-top"><div class="emb"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg><span class="rn" id="pRn">0</span></div>
+   <div class="pc-main">
+    <div class="pc-n"><b id="pName">—</b><span id="pRank" class="rk">جندي</span></div>
+    <div class="pc-sub"><span id="pProf"></span><span id="pRole" style="display:none"></span></div>
+    <div class="br" style="color:#fb7185"><svg class="li" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" /></svg><div id="hpB" class="bar"><i style="width:100%"></i></div><span class="bn" id="hpN"></span></div>
+    <div class="br" style="color:#facc15"><svg class="li" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" /></svg><div id="stB" class="bar"><i style="width:100%"></i></div><span class="bn" id="stN"></span></div>
+    <div class="br" id="tmpR" style="display:none"><span class="bi"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" /></svg></span><div class="bar"><i style="width:0"></i></div><span class="bn"></span></div>
+    <div class="br" style="color:#7dd3fc"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg><div id="xpB" class="bar xp"><i style="width:0"></i></div><span class="bn" id="xpT"></span></div>
+   </div></div>
+  <div class="pc-res">
+   <span class="pill" style="color:#fbbf24"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.744 17.736a6 6 0 1 1-7.48-7.48" /> <path d="M15 6h1v4" /> <path d="m6.134 14.768.866-.5 2 3.464" /> <circle cx="16" cy="8" r="6" /></svg><b id="pGold">0</b></span>
+   <span class="pill" id="ammoT" style="color:#86efac"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4" /> <path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17" /> <path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05" /> <path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z" /> <path d="M9.707 14.293 21 3" /></svg><b></b></span>
+   <span class="pill" id="foodT"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /> <path d="M7 2v20" /> <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></svg><b></b></span>
+   <span class="pill" id="inT"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21V10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v11" /> <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 1.132-1.803l7.95-3.974a2 2 0 0 1 1.837 0l7.948 3.974A2 2 0 0 1 22 8z" /> <path d="M6 13h12" /> <path d="M6 17h12" /></svg><b></b></span>
+   <span class="pill" id="outT"><svg class="li" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <path d="M16 3.128a4 4 0 0 1 0 7.744" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <circle cx="9" cy="7" r="4" /></svg><b></b></span>
+  </div>
 </div>
 <div id="quest" class="ui"></div>
 <div id="trainHud" class="ui"><div>🏋️ ساحة التدريب — خبرة اليوم: <b id="tXp">0</b>/60</div><button class="btn gr" id="tExit" style="margin-top:4px;padding:4px 14px">إنهاء التدريب ↩</button></div>
@@ -228,7 +273,7 @@ body.ltr .toast,body.ltr .box,body.ltr #startBox,body.ltr #kPick,body.ltr #pcard
 
 <div class="modal" id="mBoard"><div class="box"><button class="x" data-x>✕</button><h2>📜 لوحة المهام</h2><div class="muted">مهمة واحدة في كل مرة. بعض المهام تحتاج الخروج من البوابة، والحراس يفتحون فقط لمن عنده مهمة في الخارج.</div><div id="qList" style="margin-top:10px"></div></div></div>
 <div class="modal" id="mBar"><div class="box"><button class="x" data-x>✕</button><h2>🛡️ الثكنة</h2><div class="tabs" id="barTabs"><button data-t="train" class="on">🏋️ تدريب</button><button data-t="weap">⚔️ السلاح</button><button data-t="arm">🛡️ الدرع</button><button data-t="rank">🎖️ الرتبة</button><button data-t="prof">🪖 نوع الجندي</button><button data-t="med">🏅 الأوسمة</button></div><div id="barBody"></div></div></div>
-<div class="modal" id="mMap"><div class="box" style="width:min(900px,96vw);padding:10px"><button class="x" data-x>✕</button><h2>🗺️ خريطة مملكة الجليد</h2><div class="tabs" id="mapTabs"><button data-z="castle" class="on">🏰 القلعة</button><button data-z="world">❄️ المملكة</button></div><canvas id="bigmap" width="900" height="900" style="width:100%;max-height:72vh;object-fit:contain;border-radius:12px;background:#dbe7f3"></canvas></div></div>
+<div class="modal" id="mMap"><div class="box" style="width:min(900px,96vw);padding:10px"><button class="x" data-x>✕</button><h2>🗺️ خريطة مملكة الجليد</h2><div class="tabs" id="mapTabs"><button data-z="castle" class="on">🏰 القلعة</button><button data-z="world">❄️ المملكة</button></div><div id="bmWrap"><canvas id="bigmap" width="900" height="900"></canvas><div id="bmZ"><button data-mz="1">+</button><button data-mz="-1">−</button><button data-mz="0" title="موقعي">◎</button></div><div id="bmHint">اسحب للتحريك • قرّب بإصبعين أو بالأزرار</div></div></div></div>
 <div class="modal" id="mDove"><div class="box" style="width:min(520px,94vw)"><button class="x" data-x>✕</button><h2>🕊️ الحمام الزاجل</h2><div id="doveBody"></div></div></div>
 <div class="modal" id="mBag"><div class="box" style="width:min(420px,94vw)"><button class="x" data-x>✕</button><h2>🎒 حقيبتك</h2><div id="bagList"></div><div class="muted">تضع فيها أغراض المهام. تختفي الحقيبة عن ظهرك عندما تفرغ.</div></div></div>
 <div class="modal" id="mSet"><div class="box" style="width:min(420px,94vw)"><button class="x" data-x>✕</button><h2>⚙️ الإعدادات</h2>
@@ -328,8 +373,8 @@ const QUESTS=[
 ];
 const HOUSE_OWNERS=['ليث','نور','زياد','مريم','بدر','يوسف','سلمى'];
 const KEY='kc_ice_v1';
-function defS(){return{autoCam:true,autoSpd:2,sens:1,invY:false,kingdom:'',stats:{quests:0,hunts:0,wolves:0,guards:0,forts:0,birds:0},medals:[],salaryDay:'',fort:null,ammo:30,snd:true,food:72,foodT:0,inv:{},name:'',stype:'sword',role:null,gold:60,xp:0,rank:0,wl:1,al:1,honor:100,jailN:0,pos:null,quest:null,done:[],trainDay:'',trainXp:0}}
-let S=defS();try{const s=JSON.parse(localStorage.getItem(KEY));if(s)S=Object.assign(defS(),s)}catch(e){}S.stats=Object.assign(defS().stats,S.stats||{});S.medals=S.medals||[];
+function defS(){return{autoCam:true,autoSpd:2,sens:1,invY:false,kingdom:'',stats:{quests:0,hunts:0,wolves:0,guards:0,forts:0,birds:0},medals:[],salaryDay:'',fort:null,ammo:30,snd:true,food:150,foodT:0,sat:100,inv:{},name:'',stype:'sword',role:null,gold:60,xp:0,rank:0,wl:1,al:1,honor:100,jailN:0,pos:null,quest:null,done:[],trainDay:'',trainXp:0}}
+let S=defS();try{const s=JSON.parse(localStorage.getItem(KEY));if(s)S=Object.assign(defS(),s)}catch(e){}S.stats=Object.assign(defS().stats,S.stats||{});if(S.sat==null)S.sat=100;if(!S.foodV){S.foodV=2;S.food=150}S.medals=S.medals||[];
 const SAVE_REF=()=>S;
 function save(){if(typeof NET!=='undefined'&&NET.authed){NET.dirty=true;return}try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 const today=()=>new Date().toDateString();
@@ -1140,7 +1185,7 @@ const ROLE_LOOK={
   porter:{ch:'Barbarian',hide:['1H_Axe_Offhand','2H_Axe','1H_Axe','Mug','Barbarian_Round_Shield']}};
 function AT(){const b=ST(),r=S.role&&ROLE_LOOK[S.role];return r?Object.assign({},b,{atk:r.atk||b.atk,ranged:r.ranged!=null?r.ranged:b.ranged,range:r.range||b.range,dmgR:r.dmg}):b}
 function maxHp(){return ST().hp+(S.al-1)*15}
-function dmg(){const a=AT();return Math.round(((a.dmgR||ST().dmg)+(S.wl-1)*3)*(S.food<=0?.6:1)*(P.comboMul||1))}
+function dmg(){const a=AT();return Math.round(((a.dmgR||ST().dmg)+(S.wl-1)*3)*(S.sat<=0?.6:1)*(P.comboMul||1))}
 function comboSet(){const r=S.role;if(r==='doctor')return['Spellcast_Shoot','Spellcast_Raise','Spellcast_Long'];if(r==='hunter')return['1H_Ranged_Shoot','1H_Ranged_Shoot','2H_Ranged_Shoot'];
   if(r==='guard'||(!r&&S.stype==='spear'))return['2H_Melee_Attack_Stab','2H_Melee_Attack_Slice','2H_Melee_Attack_Chop','2H_Melee_Attack_Spin'];
   if(!r&&S.stype==='bow')return['1H_Ranged_Shoot','1H_Ranged_Shoot','2H_Ranged_Shoot'];if(!r&&S.stype==='xbow')return['2H_Ranged_Shoot','2H_Ranged_Shooting'];
@@ -1204,7 +1249,7 @@ function makeBag(){const g=new THREE.Group();const lm=SM({color:L(0x7a4a26),roug
   const pocket=new THREE.Mesh(new THREE.BoxGeometry(.42,.26,.12),dm);pocket.position.set(0,-.12,-.2);g.add(pocket);const bk=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.04),gm);bk.position.set(0,.18,-.18);g.add(bk);
   const roll=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.7,10),SM({color:L(0x6b8fb3)}));roll.rotation.z=PI/2;roll.position.y=.46;g.add(roll);
   g.traverse(o=>{if(o.isMesh)o.castShadow=true});scene.add(g);g.visible=false;return g}
-function updBag(){const n=invCount();if(!BAG)BAG=makeBag();BAG.visible=n>0&&!cam.fp;$('#bBag').style.display=n>0?'block':'none';$('#bagN').textContent=n;save();hud()}
+function updBag(){const n=invCount();if(!BAG)BAG=makeBag();BAG.visible=n>0&&!cam.fp;$('#bBag').style.display=n>0?'':'none';$('#bagN').textContent=n;save();hud()}
 function renderBag(){$('#bagList').innerHTML=Object.keys(S.inv).length?Object.entries(S.inv).map(([k,n])=>`<div class="card"><div class="r"><b>${ITEMS[k]||k}</b><span class="tag gold">×${n}</span></div></div>`).join(''):'<div class="card">الحقيبة فارغة</div>'}
 $('#bBag').onclick=()=>{renderBag();openM('mBag')};
 function groundAt(x,z,y){let g=baseGround(x,z);
@@ -1237,7 +1282,7 @@ function updPlayer(dt){
   const walkKey=keys.ShiftLeft||keys.ShiftRight;
   let running=false;
   if(!HORSE.on&&l>.55&&!walkKey&&!P.exhaust&&P.stam>0){running=true;P.stam=Math.max(0,P.stam-8*dt);if(P.stam<=0){P.exhaust=true;toast('😮‍💨 تعبت! امشِ قليلًا حتى تستعيد طاقتك')}}
-  else{P.stam=Math.min(100,P.stam+(l<.05?25:16)*dt*climF());if(P.exhaust&&P.stam>25)P.exhaust=false}
+  else{P.stam=Math.min(100,P.stam+(l<.05?25:16)*dt*climF()*(S.sat<20?.5:1));if(P.exhaust&&P.stam>25)P.exhaust=false}
   P.stepAcc=(P.stepAcc||0);
   let sp=l<.05?0:(HORSE.on?(l>.6?19:6.5):running?10.5*ST().spd:5.2*Math.max(l,.6));
   if(sp>0&&e.lock<=0){P.pos.x+=vx/(l||1)*sp*dt;P.pos.z+=vz/(l||1)*sp*dt;P.face=Math.atan2(vx,vz);if(P.onG){P.stepAcc+=sp*dt;const stride=HORSE.on?6:sp>7?2.6:1.7;if(P.stepAcc>stride){P.stepAcc=0;if(HORSE.on)sfx('gallop',.5);else sfx(P.inB?'step_stone':insideWalls(P.pos.x,P.pos.z)||P.pos.y>WH-1||BWc.fire>.5?'step_stone':BWc.ice>.5?'step_snow':'step_sand',sp>7?.4:.28)}}}
@@ -1573,6 +1618,10 @@ const MEDALS=[
  {id:'off',ic:'⭐',n:'الضابط',d:'اصل إلى رتبة ملازم',ok:()=>S.rank>=5}];
 function checkMedals(){for(const m of MEDALS){if(S.medals.includes(m.id)||!m.ok())continue;S.medals.push(m.id);S.gold+=25;setTimeout(()=>{banner(m.ic+' وسام جديد: '+m.n,m.d+' • +25 ذهب');sfx('bell',.9)},600)}}
 function salary(){return 20+S.rank*12}
+// economy: each upgrade costs more than the last (≈14k gold from level 1 to 10), and level N+1 needs rank N-1, so gear grows with the player
+function upCost(lv){return Math.round(60*Math.pow(lv,1.9)/10)*10}
+function upCap(){return Math.min(10,S.rank+2)}
+const GOLD_K=.6; // quest gold scale
 
 /* ================= ONLINE (multiplayer) ================= */
 const HIGH_RANK=7;const NET={lock:false,authed:false,newAcc:false,rules:'',inF:false,ws:null,on:false,id:null,P:new Map(),ev:{xp:1,gold:1,name:''},t:0,back:1500,prof:''};
@@ -1623,7 +1672,8 @@ function netMsg(m){
   else if(m.t==='ann'){banner('📯 إعلان من صاحب اللعبة',m.m);chatMsg('📯 صاحب اللعبة',m.m,'#fbbf24');sfx('bell',1)}
   else if(m.t==='ev'){NET.ev=m.ev;netBadge();if(m.ev.xp>1||m.ev.gold>1)banner('🎉 '+(m.ev.name||'حدث خاص'),(m.ev.xp>1?'الخبرة ×'+m.ev.xp+' ':'')+(m.ev.gold>1?'الذهب ×'+m.ev.gold:''));else toast('انتهى الحدث الخاص')}
   else if(m.t==='lock'){if(m.k===HOMEK.id){NET.lock=!!m.on;banner(m.on?'🔒 القلعة مغلقة':'🔓 القلعة مفتوحة',m.on?'بأمر الملك: لا يخرج إلا القادة':'عادت البوابة تفتح لأصحاب المهام')}}
-  else if(m.t==='food'){if(m.k===HOMEK.id){S.food=m.v;updCounts()}}
+  else if(m.t==='food'){if(m.k===HOMEK.id){const o=S.food;S.food=m.v;updCounts();if(o>=30&&m.v<30)toast('⚠️ مخزن الطعام شبه فارغ! الصيد مطلوب');if(o>0&&m.v<=0)toast('🚨 المخزن فارغ! لا أحد يستطيع الأكل — اخرجوا للصيد')}}
+  else if(m.t==='ate'){if(m.ok){if(NET.eatCb)NET.eatCb()}else toast(m.why==='empty'?'🚨 المخزن فارغ! لا طعام — اخرجوا للصيد':'⏳ انتظر قليلًا قبل الوجبة التالية');NET.eatCb=null}
   else if(m.t==='gqn'){NET.gq={q:m.q,s:m.s,n:m.n,need:m.need,t:performance.now()}}
   else if(m.t==='gqok'){const q=curQuest();if(q&&q.id===m.q&&S.quest.step===m.s){banner('👥 '+q.n,'اكتمل العدد! '+m.n+' جنود معًا');advance()}}
   else if(m.t==='setS'){const r0=S.rank;Object.assign(S,m.patch||{});if(S.rank!==r0)setPlayerChar();hud();save();if(m.why){banner('👑',m.why);sfx('coins',.9)}}
@@ -1677,17 +1727,21 @@ function questUpd(){
   if(st.group){if(d<sp.r+3&&yok){if(!NET.on){if(!P.gqWarn){P.gqWarn=1;toast('👥 هذه مهمة جماعية — تحتاج اللعب أونلاين')}return null}const now=performance.now();if(!NET.gqT||now-NET.gqT>1500){NET.gqT=now;netSend({t:'gq',q:q.id,s:S.quest.step})}const g=NET.gq&&NET.gq.q===q.id&&NET.gq.s===S.quest.step&&now-NET.gq.t<4000?NET.gq.n:1;$('#quest').innerHTML+=`<div class="tag gold" style="margin-top:3px">👥 ${g}/${st.group} جنود هنا</div>`}return null}
   if(d<sp.r&&yok){if(!st.a){advance();return null}return{ic:'⭐',t:st.a,fn:()=>doStep(st)}}
   return null}
-function doStep(st){if(st.carry&&!st.anim)P.ent.once('PickUp',.7);if(st.ambush)spawnAmbush(st.ambush);if(st.heal===-1){P.hp=maxHp();hud()}if(st.open&&TREASURE){sparks(TREASURE.position.x,1.5,TREASURE.position.z,0xffd34d);setTimeout(()=>{if(TREASURE)scene.remove(TREASURE)},700)}if(st.anim)P.ent.once(st.anim,st.anim==='Spellcast_Long'?1.4:.8);
+function doStep(st){if(st.carry&&!st.anim)P.ent.once('PickUp',.7);if(st.ambush)spawnAmbush(st.ambush);if(st.heal===-1){P.hp=maxHp();S.sat=Math.min(100,S.sat+60);hud()}if(st.open&&TREASURE){sparks(TREASURE.position.x,1.5,TREASURE.position.z,0xffd34d);setTimeout(()=>{if(TREASURE)scene.remove(TREASURE)},700)}if(st.anim)P.ent.once(st.anim,st.anim==='Spellcast_Long'?1.4:.8);
   if(st.heal!=null&&st.heal>=0)healPatient(st.heal);if(st.serve!=null)serveMeal(st.serve);if(st.spark){sparks(-36.5,1.9,50.6);sfx('anvil',.8)}if(st.anim==='Interact')sfx('chop',.7);
-  if(st.drop&&(S.inv.meat||0)>0&&st.s==='store')addFood(4*(S.inv.meat||0));if(st.serve!=null)addFood(1);
+  if(st.drop&&(S.inv.meat||0)>0&&st.s==='store')addFood(5*(S.inv.meat||0));if(st.serve!=null)addFood(1);
   if(st.carry)setCarry(st.carry);else if(st.drop)setCarry(null);if(st.serve!=null&&st.serve<2)takeItem('food',1);advance()}
 function advance(){const q=curQuest();S.quest.step++;
   if(S.quest.step>=q.steps.length){if(q.loop){S.quest.n=(S.quest.n||0)+1;if(S.quest.n<q.loop.times){S.quest.step=q.loop.from;toast('✅ رحلة '+S.quest.n+'/'+q.loop.times+' — عُد للصيد');save();hud();return}}
-    const qm=rMul();const em=NET.on?NET.ev:{xp:1,gold:1};const qg=Math.round(q.g*qm*em.gold),qx=Math.round(q.xp*em.xp);S.gold+=qg;S.xp+=qx;S.stats.quests++;clearRaid();if(q.type==='daily'){dailyS().ids.push(q.id)}if(q.id==='hunt')S.stats.hunts++;if(q.id==='mine'&&fortOwner()===HOMEK){S.gold+=q.g;toast('🏳️ الحصن لمملكتك — مكافأة المنجم مضاعفة!')}setTimeout(checkMedals,1200);sfx('coins',.8);setTimeout(()=>sfx('bell',.5),250);if(q.type==='once'&&!S.done.includes(q.id))S.done.push(q.id);S.quest=null;setCarry(null);
+    const qm=rMul();const em=NET.on?NET.ev:{xp:1,gold:1};const qg=Math.round(q.g*GOLD_K*qm*em.gold),qx=Math.round(q.xp*em.xp);S.gold+=qg;S.xp+=qx;S.stats.quests++;clearRaid();if(q.type==='daily'){dailyS().ids.push(q.id)}if(q.id==='hunt')S.stats.hunts++;if(q.id==='mine'&&fortOwner()===HOMEK){S.gold+=q.g;toast('🏳️ الحصن لمملكتك — مكافأة المنجم مضاعفة!')}setTimeout(checkMedals,1200);sfx('coins',.8);setTimeout(()=>sfx('bell',.5),250);if(q.type==='once'&&!S.done.includes(q.id))S.done.push(q.id);S.quest=null;setCarry(null);
     toast('🏆 أكملت "'+q.n+'" — +'+qg+' ذهب، +'+qx+' خبرة');if(S.role){toast('🪖 انتهت مهمتك، عدت جنديًا كما كنت');S.role=null;setPlayerChar()}checkRank()}
   else toast('✅ '+q.steps[S.quest.step-1].t);save();hud()}
-function addFood(d){if(NET.on)netSend({t:'food',d});else{S.food=clamp(S.food+d,0,100);updCounts()}}
-function rMul(){return 1+S.rank*.08}
+function addFood(d){if(NET.on)netSend({t:'food',d});else{S.food=clamp(S.food+d,0,400);updCounts()}}
+/* personal hunger: 100% → 0% in one hour of play; a meal at the tavern costs 1 portion from the storehouse */
+function eatMeal(){if(S.sat>=90){toast('🍗 أنت شبعان الآن');return}
+  const ok=()=>{S.sat=Math.min(100,S.sat+60);P.ent.once('Use_Item',1);sfx('leather',.6);toast('🍲 تناولت وجبة (حصة واحدة من المخزن) • الشبع '+Math.round(S.sat)+'%');save();hud()};
+  if(NET.on){NET.eatCb=ok;netSend({t:'eat'})}else{if(S.food<1){toast('🚨 المخزن فارغ! لا طعام — اخرجوا للصيد');return}S.food-=1;updCounts();ok()}}
+function rMul(){return 1+S.rank*.05}
 function dailyS(){if(!S.daily||S.daily.d!==today())S.daily={d:today(),ids:[]};return S.daily}
 function qHook(k){const q=curQuest();if(!q)return;const st=q.steps[S.quest.step];if(!st||!st[k])return;S.quest.n=(S.quest.n||0)+1;if(S.quest.n>=st[k]){S.quest.n=0;advance()}else{toast('✅ '+st.t+' '+S.quest.n+'/'+st[k]);save()}}
 function spawnRaid(n){const ks=KPOS.slice(1);for(let i=0;i<n;i++){const k=ks[i%2].k;const en=makeEnemy('guard',rr(-28,28),HZ+45+rr(0,25),{k});en.raid=true;en.leash=70}SPOT.raid={x:0,y:0,z:HZ+50,r:30};toast('🚨 جنود الأعداء أمام البوابة!');sfx('bell',.9)}
@@ -1721,7 +1775,7 @@ function openBoard(re){if(!re)sfx('book',.6);const l=$('#qList');const dd=dailyS
     const tags=(q.need&&q.type!=='group'?'<span class="tag gold">👥 '+q.need+' لاعبين أو أكثر</span> ':'')+(q.type==='group'?'<span class="tag gold">👥 جماعية: '+q.need+' جنود أو أكثر</span>':q.type==='daily'?'<span class="tag gold">📅 يومية</span>':q.type==='rank'?'<span class="tag gold">🎖️ مهمة رتبة: '+RANKS[q.minRank].n+'+</span>':q.type==='role'?'<span class="tag">🔁 دائمة</span>':'<span class="tag gold">⭐ مرة واحدة</span>')+(q.role?' <span class="tag gold">'+ROLES[q.role].ic+' تصبح '+ROLES[q.role].n+' مؤقتًا</span>':'')+(q.out?' <span class="tag">🚪 خارج القلعة</span>':'');
     const gq=(q.type==='group'||q.need)&&!act,LB=LOB[q.id],inL=LB&&LB.names.includes(S.name);
     const btn=(gq&&NET.on&&!lock&&!dn)?(inL?'<button class="btn gr" data-lv="1">انسحب</button>':`<button class="btn" data-lj="${q.id}" ${S.quest?'disabled':''}>📝 سجّل</button>`):((q.type==='group'||q.need)&&!NET.on&&!act)?'<button class="btn" disabled>🌐 تحتاج أونلاين</button>':act?'<button class="btn gr" data-ab="'+q.id+'">إلغاء المهمة</button>':lock?'<button class="btn" disabled>🔒 تفتح عند رتبة '+RANKS[q.minRank].n+'</button>':dn?'<button class="btn" disabled>✅ أنجزتها اليوم</button>':`<button class="btn" data-q="${q.id}" ${S.quest?'disabled':''}>قبول المهمة</button>`;
-    return`<div class="card" style="${lock||dn?'opacity:.55':''}"><div class="r"><b>${q.ic} ${q.n}</b><span>🪙 ${Math.round(q.g*m)} • ✨ ${q.xp}</span></div><div class="muted">${q.d}</div>${gq&&NET.on?lobLine(q):''}<div class="r" style="margin-top:6px"><span>${tags}</span>${btn}</div></div>`};
+    return`<div class="card" style="${lock||dn?'opacity:.55':''}"><div class="r"><b>${q.ic} ${q.n}</b><span>🪙 ${Math.round(q.g*GOLD_K*m)} • ✨ ${q.xp}</span></div><div class="muted">${q.d}</div>${gq&&NET.on?lobLine(q):''}<div class="r" style="margin-top:6px"><span>${tags}</span>${btn}</div></div>`};
   const sec=t=>`<h3 style="margin:10px 0 4px;color:#fbbf24;font-size:15px">${t}</h3>`;
   const groupQ=QUESTS.filter(q=>q.type==='group'),daily=QUESTS.filter(q=>q.type==='daily'),rankQ=QUESTS.filter(q=>q.type==='rank').sort((a,b)=>(S.rank>=a.minRank?0:1)-(S.rank>=b.minRank?0:1)||a.minRank-b.minRank),other=QUESTS.filter(q=>(q.type==='role'||q.type==='once')&&(q.type==='role'||!S.done.includes(q.id)));
   l.innerHTML='<div class="muted" style="margin-bottom:6px">📅 اليومية تتجدد كل يوم • 🎖️ مهام الرتب تفتح مع ترقيتك • 🔁 الدائمة تتكرر • ⭐ مرة واحدة. المكافأة تزيد مع رتبتك (×'+m.toFixed(2)+')</div>'+sec('📅 مهام يومية للجيش')+daily.map(card).join('')+sec('👥 مهام جماعية')+groupQ.map(card).join('')+sec('🎖️ مهام الرتب')+rankQ.map(card).join('')+sec('📜 مهام عامة')+other.map(card).join('');
@@ -1734,9 +1788,9 @@ let barTab='train';
 function openBar(t){barTab=t||barTab;renderBar();openM('mBar')}
 function renderBar(){$$('#barTabs button').forEach(b=>{b.classList.toggle('on',b.dataset.t===barTab);b.onclick=()=>{barTab=b.dataset.t;renderBar()}});const el=$('#barBody');
   if(barTab==='train'){el.innerHTML=`<div class="card"><b>🏋️ ساحة التدريب</b><div class="muted">دمى للضرب، أهداف للرماية، مسار عقبات، ومدرّب. كل ضربة تعطي خبرة (الحد اليومي 60).</div><div style="margin-top:8px"><button class="btn gold" id="goTrain">ادخل ساحة التدريب</button></div></div>`;$('#goTrain').onclick=enterTraining}
-  else if(barTab==='weap'||barTab==='arm'){const w=barTab==='weap';const lv=w?S.wl:S.al;const cost=40*lv;el.innerHTML=`<div class="card"><div class="r"><b>${w?'⚔️ سلاح '+ST().n:'🛡️ درعك'}</b><span class="tag gold">المستوى ${lv}/10</span></div><div class="muted">${w?'💥 الضرر الحالي: '+dmg()+(lv<10?' ← بعد التطوير: '+(dmg()+3):''):'❤️ الصحة القصوى: '+maxHp()+' • 🛡️ يقلل الضرر الذي تتلقاه: '+Math.round(Math.min(.5,(S.al-1)*.05)*100)+'%'+(lv<10?' ← بعد التطوير: '+Math.round(Math.min(.5,S.al*.05)*100)+'% و+15 صحة':'')}</div><div class="r" style="margin-top:8px"><span>🪙 معك ${S.gold}</span>${lv<10?`<button class="btn" id="upB" ${S.gold<cost?'disabled':''}>تطوير (${cost} ذهب)</button>`:'<span class="tag ok">أقصى مستوى</span>'}</div></div><div class="muted">الحدّاد يطوّر لك السلاح والدرع. ولاحقًا يحتاج التطوير موارد من الصيد.</div>${w?`<div class="card"><div class="r"><b>🏹 السهام: ${S.ammo||0}</b><button class="btn" id="ammoB" ${S.gold<10?'disabled':''}>اشترِ 20 سهمًا (10 ذهب)</button></div><div class="muted">القوّاس والنشّاب والصيّاد يحتاجون السهام. كل رمية تستهلك سهمًا.</div></div>`:''}`;
+  else if(barTab==='weap'||barTab==='arm'){const w=barTab==='weap';const lv=w?S.wl:S.al;const cost=upCost(lv),cap=upCap();const capped=lv<10&&lv>=cap;el.innerHTML=`<div class="card"><div class="r"><b>${w?'⚔️ سلاح '+ST().n:'🛡️ درعك'}</b><span class="tag gold">المستوى ${lv}/10</span></div><div class="muted">${w?'💥 الضرر الحالي: '+dmg()+(lv<10?' ← بعد التطوير: '+(dmg()+3):''):'❤️ الصحة القصوى: '+maxHp()+' • 🛡️ يقلل الضرر الذي تتلقاه: '+Math.round(Math.min(.5,(S.al-1)*.05)*100)+'%'+(lv<10?' ← بعد التطوير: '+Math.round(Math.min(.5,S.al*.05)*100)+'% و+15 صحة':'')}</div><div class="r" style="margin-top:8px"><span>🪙 معك ${S.gold}</span>${lv>=10?'<span class="tag ok">أقصى مستوى</span>':capped?`<button class="btn" disabled>🔒 المستوى ${lv+1} يفتح عند رتبة ${RANKS[Math.min(RANKS.length-1,lv-1)].n}</button>`:`<button class="btn" id="upB" ${S.gold<cost?'disabled':''}>تطوير (${cost} ذهب)</button>`}</div></div><div class="muted">الحدّاد يطوّر لك السلاح والدرع. كل مستوى أغلى من الذي قبله، والمستويات العليا تفتح مع رتبتك.</div>${w?`<div class="card"><div class="r"><b>🏹 السهام: ${S.ammo||0}</b><button class="btn" id="ammoB" ${S.gold<10?'disabled':''}>اشترِ 20 سهمًا (10 ذهب)</button></div><div class="muted">القوّاس والنشّاب والصيّاد يحتاجون السهام. كل رمية تستهلك سهمًا.</div></div>`:''}`;
     const ab=$('#ammoB');if(ab)ab.onclick=()=>{if(S.gold<10)return;S.gold-=10;S.ammo=(S.ammo||0)+20;sfx('coins');save();hud();renderBar();toast('🏹 +20 سهمًا')};
-    const ub=$('#upB');if(ub)ub.onclick=()=>{if(S.gold<cost)return;S.gold-=cost;if(w)S.wl++;else{S.al++;P.hp=maxHp()}save();hud();renderBar();toast('⬆️ تم التطوير!')}}
+    const ub=$('#upB');if(ub)ub.onclick=()=>{if(S.gold<cost||capped)return;S.gold-=cost;if(w)S.wl++;else{S.al++;P.hp=maxHp()}save();hud();renderBar();toast('⬆️ تم التطوير!')}}
   else if(barTab==='med'){el.innerHTML=`<div class="muted" style="margin-bottom:6px">لكل وسام 25 ذهب. معك ${S.medals.length} من ${MEDALS.length}</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px">`+MEDALS.map(m=>{const h=S.medals.includes(m.id);return`<div class="card" style="margin:0;${h?'border:1px solid #f59e0b':'opacity:.55'}"><b>${h?m.ic:'🔒'} ${m.n}</b><div class="muted">${m.d}</div></div>`}).join('')+'</div>'}
   else if(barTab==='rank'){const sd=S.salaryDay===today();el.innerHTML=`<div class="card" style="border:1px solid #f59e0b"><div class="r"><b>💰 راتبك اليومي: ${salary()} ذهب</b><button class="btn" id="salB" ${sd?'disabled':''}>${sd?'استلمته اليوم ✅':'استلم الراتب'}</button></div><div class="muted">كل رتبة أعلى = راتب أكبر</div></div>`+RANKS.map((r,i)=>`<div class="card"><div class="r"><b>${i<=S.rank?'✅':'🔒'} ${RANK_ICON[i]} ${r.n}</b><span class="muted">${r.xp} خبرة</span></div><div class="muted">${RANK_TASKS[i]}</div><div class="muted">👕 ${RANK_LOOK[i]}</div>${i>S.rank+1?'<div class="muted">🤖 يشغلها حاليًا الكمبيوتر</div>':''}${i===S.rank+1?`<div style="margin-top:6px"><button class="btn gold" id="prom" ${S.xp<r.xp?'disabled':''}>الترقية إلى ${r.n} (${S.xp}/${r.xp})</button></div>`:''}</div>`).join('');
     {const sb=$('#salB');if(sb)sb.onclick=()=>{if(S.salaryDay===today())return;S.salaryDay=today();const tx=KING_PLAYERS&&NET.on&&NET.ks&&NET.ks.king&&!isKing()?Math.round(salary()*(NET.ks.tax||0)/100):0;S.gold+=salary()-tx;if(tx)netSend({t:'tax',g:tx});sfx('coins',.9);toast('💰 استلمت راتبك: +'+(salary()-tx)+' ذهب'+(tx?' (ضريبة الملك '+tx+')':''));save();hud();renderBar()}}
@@ -1755,13 +1809,13 @@ function sleep(){fade('🌙 تنام في بيتك...<br><span style="font-size:
 /* ================= UI ================= */
 function updCounts(){let inn=0,out=0;
   if(insideWalls(P.pos.x,P.pos.z))inn++;else if(P.pos.x<8000)out++;for(const r of NET.P.values()){if(!r.seen||r.hid||r.k!==HOMEK.id)continue;if(insideWalls(r.tx,r.tz))inn++;else out++}
-  $('#foodT').textContent=(S.food<25?'⚠️':'🍖')+' الطعام '+Math.round(S.food)+'%';$('#foodT').style.color=S.food<25?'#fca5a5':'';$('#inT').textContent='🏰 في القلعة: '+inn;$('#outT').textContent='🌲 خارجها: '+out;
+  $('#foodT b').textContent=Math.round(S.sat)+'%';$('#foodT').title='الشبع';$('#foodT').classList.toggle('warn',S.sat<25);$('#inT b').textContent=Math.floor(S.food);$('#inT').title='مخزن الطعام (حصص)';$('#inT').classList.toggle('warn',S.food<30);$('#outT b').textContent=inn+' • '+out;$('#outT').title='جنود في القلعة • خارجها';
   const fl=FOODLBL;if(fl&&fl.userData.last!==Math.round(S.food)){fl.userData.last=Math.round(S.food)}}
 let FOODLBL=null;
 setInterval(()=>{if(Object.values(LOB).some(l=>l.go)&&$('#mBoard').classList.contains('on'))openBoard(1)},1000);
-function hud(){if(typeof updKingBtn==='function')updKingBtn();$('#pName').textContent=S.name;$('#pRank').textContent=RANKS[S.rank].n;$('#pProf').textContent=ST().ic+' '+ST().n;$('#pGold').textContent=S.gold;
-  const r=$('#pRole');if(S.role){r.style.display='flex';r.innerHTML='<span class="tag gold">'+ROLES[S.role].ic+' '+ROLES[S.role].n+' مؤقت</span>'}else r.style.display='none';
-  $('#hpB i').style.width=(P.hp/maxHp()*100)+'%';const a=RANKS[S.rank].xp,b=RANKS[S.rank+1]?RANKS[S.rank+1].xp:a+1;$('#xpB i').style.width=Math.min(100,(S.xp-a)/(b-a)*100)+'%';$('#xpT').textContent='✨ '+S.xp+(RANKS[S.rank+1]?' / '+b:'')+(AT().ranged&&S.role!=='doctor'?'   🏹 '+(S.ammo||0):'');}
+function hud(){if(typeof updKingBtn==='function')updKingBtn();$('#pName').textContent=S.name;$('#pRank').textContent=RANKS[S.rank].n;$('#pRn').textContent=S.rank+1;$('#pProf').textContent=ST().ic+' '+ST().n;$('#pGold').textContent=S.gold;$('#hpN').textContent=Math.ceil(P.hp);
+  const r=$('#pRole');if(S.role){r.style.display='inline-flex';r.innerHTML='<span class="tag gold">'+ROLES[S.role].ic+' '+ROLES[S.role].n+' مؤقت</span>'}else r.style.display='none';
+  $('#hpB i').style.width=(P.hp/maxHp()*100)+'%';const a=RANKS[S.rank].xp,b=RANKS[S.rank+1]?RANKS[S.rank+1].xp:a+1;$('#xpB i').style.width=Math.min(100,(S.xp-a)/(b-a)*100)+'%';$('#xpT').textContent=RANKS[S.rank+1]?S.xp+'/'+b:S.xp;$('#ammoT').style.display=AT().ranged&&S.role!=='doctor'?'':'none';$('#ammoT b').textContent=S.ammo||0;$('#ammoT').title='السهام';updCounts();}
 function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;$('#toasts').appendChild(e);while($('#toasts').children.length>3)$('#toasts').firstChild.remove();setTimeout(()=>e.remove(),3600)}
 let banT;function banner(t,s){$('#banner .t').textContent=t;$('#banner .s').textContent=s||'';$('#banner').style.opacity=1;clearTimeout(banT);banT=setTimeout(()=>$('#banner').style.opacity=0,2600)}
 function fade(html,ms,mid){const f=$('#fade');f.innerHTML='<div>'+html+'</div>';f.style.opacity=1;f.style.pointerEvents='auto';setTimeout(()=>{if(mid)mid();setTimeout(()=>{f.style.opacity=0;f.style.pointerEvents='none'},ms)},600)}
@@ -1810,7 +1864,7 @@ const TRQ={n:0,cb:{}};
 function chatOpen(){return $('#chat').style.display==='flex'}
 function spyNear(k){if(k===HOMEK.id)return true;const kp=KPOS.find(q=>q.k.id===k);if(!kp)return false;return Math.hypot(P.pos.x-kp.x,P.pos.z-kp.z)<330}
 function chCanRead(ch){return ch==='all'||ch===HOMEK.id||spyNear(ch)}
-function chBadge(){const n=Object.entries(CHU).reduce((a,[k,v])=>a+(chCanRead(k)?v:0),0);$('#bChat').innerHTML='💬'+(n?'<span class="dot" style="display:block;width:auto;height:auto;padding:0 4px;font-size:10px;line-height:14px;color:#fff">'+(n>99?'99+':n)+'</span>':'');if(chatOpen())chTabs()}
+function chBadge(){const n=Object.entries(CHU).reduce((a,[k,v])=>a+(chCanRead(k)?v:0),0);{const b=$('#bChat');let d=b.querySelector('.dot');if(!d){d=document.createElement('span');d.className='dot cnt';b.appendChild(d)}d.style.display=n?'block':'none';d.textContent=n>99?'99+':n}if(chatOpen())chTabs()}
 function chTabs(){const t=[['all','🌍 الكل']].concat(['ice','fire','sand'].map(k=>[k,KD[k].ic+' '+(k===HOMEK.id?'مملكتي':KD[k].n.replace('مملكة ',''))]));
   $('#chTabs').innerHTML=t.map(([k,n])=>`<button data-ch="${k}" class="${k===chTab?'on':''} ${chCanRead(k)?'':'lk'}">${chCanRead(k)?'':'🔒 '}${n}${CHU[k]&&chCanRead(k)&&k!==chTab?'<i>'+CHU[k]+'</i>':''}</button>`).join('');
   $$('#chTabs button').forEach(b=>b.onclick=()=>{chTab=b.dataset.ch;chRender()})}
@@ -1837,8 +1891,8 @@ $('#sView').onclick=()=>{toggleView();renderSet()};$('#sSnd').onclick=()=>{S.snd
 $('#sSens').oninput=e=>{S.sens=+e.target.value;$('#sSensV').textContent=S.sens.toFixed(1);save()};function goFull(){const de=document.documentElement;const fs=de.requestFullscreen||de.webkitRequestFullscreen;try{if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}if(fs){const pr=fs.call(de,{navigationUI:'hide'});if(pr&&pr.then)pr.then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})).catch(()=>toast('📱 أضف اللعبة إلى الشاشة الرئيسية لتفتح بملء الشاشة'))}else toast('📱 من قائمة المتصفح اختر «إضافة إلى الشاشة الرئيسية» لتفتح اللعبة بملء الشاشة')}catch(e){}}
 $('#bFull').onclick=goFull;
 const LAMP=new THREE.PointLight(0xffc97a,0,38,1.3);scene.add(LAMP);
-function setLamp(on){S.lamp=on;save();$('#bLamp').style.background=on?'rgba(245,158,11,.85)':'';$('#bLamp').style.borderColor=on?'#fde68a':'';sfx('click',.5)}
-$('#bLamp').onclick=()=>setLamp(!S.lamp);addEventListener('fullscreenchange',()=>{$('#bFull').textContent=document.fullscreenElement?'🗗':'⛶'});
+function setLamp(on){S.lamp=on;save();$('#bLamp').classList.toggle('on',!!on);$('#bLamp').style.background='';$('#bLamp').style.borderColor='';sfx('click',.5)}
+$('#bLamp').onclick=()=>setLamp(!S.lamp);addEventListener('fullscreenchange',()=>{$('#bFull').classList.toggle('on',!!document.fullscreenElement)});
 $('#sOut').onclick=()=>{try{localStorage.removeItem('kc_auth')}catch(e){}location.reload()};
 $('#sAuto').onclick=()=>{S.autoCam=!S.autoCam;save();renderSet()};$$('#sAutoSpd button').forEach(b=>b.onclick=()=>{S.autoSpd=+b.dataset.s;save();renderSet()});$('#sInv').onclick=()=>{S.invY=!S.invY;save();renderSet()};
 $('#pcard').onclick=()=>$('#pcard').classList.toggle('mini');$('#sQ').onclick=()=>{HQ=!HQ;try{localStorage.setItem('kc_q',HQ?'1':'0')}catch(e){}applyQ();renderSet()};
@@ -1862,7 +1916,7 @@ function drawMini(){const W=mini.width,R=W/2;mc.clearRect(0,0,W,W);mc.save();mc.
     if(dl>R-14){const a=Math.atan2(dz,dx);x=R+Math.cos(a)*(R-12);z=R+Math.sin(a)*(R-12);mc.save();mc.translate(x,z);mc.rotate(a);mc.fillStyle='#ef1c1c';mc.strokeStyle='#fff';mc.lineWidth=2;mc.beginPath();mc.moveTo(10,0);mc.lineTo(-8,-8);mc.lineTo(-4,0);mc.lineTo(-8,8);mc.closePath();mc.fill();mc.stroke();mc.restore()}
     else{mc.fillStyle='#ef1c1c';mc.strokeStyle='#fff';mc.lineWidth=2;mc.beginPath();mc.arc(x,z,7,0,TAU);mc.fill();mc.stroke()}}
   mc.translate(R,R);mc.rotate(-P.ent.m.rotation.y+PI);mc.fillStyle='#1d4ed8';mc.strokeStyle='#fff';mc.lineWidth=2;mc.beginPath();mc.moveTo(0,-10);mc.lineTo(7,8);mc.lineTo(0,4);mc.lineTo(-7,8);mc.closePath();mc.fill();mc.stroke();mc.restore()}
-let mapZoom='castle';let WRAS=null,WRAS_O=null;
+let mapZoom='castle';const MV={z:1,x:0,y:0,sp0:250,cx0:0,cz0:0};let mvRaf=0;const mvDraw=()=>{if(!mvRaf)mvRaf=requestAnimationFrame(()=>{mvRaf=0;drawBig()})};let WRAS=null,WRAS_O=null;
 function worldRaster(){if(WRAS)return WRAS;const n=140;const cv=document.createElement('canvas');cv.width=cv.height=n;const c=cv.getContext('2d');const col={ice:[225,234,244],fire:[86,72,68],sand:[236,214,164],forest:[160,196,132]};
   const SP=Math.max(LB.x1-LB.x0,LB.z1-LB.z0),MX=(LB.x0+LB.x1)/2-SP/2,MZ=(LB.z0+LB.z1)/2-SP/2;WRAS_O={x:MX,z:MZ,s:SP};for(let i=0;i<n;i++)for(let j=0;j<n;j++){const x=MX+(i+.5)/n*SP,z=MZ+(j+.5)/n*SP;const o=outside(x,z);const b=domBiome(x,z);let k=col[b];if(o>0){const f=Math.min(1,o/200)*.6;k=k.map(v=>v*(1-f)+110*f)}c.fillStyle=`rgb(${k[0]|0},${k[1]|0},${k[2]|0})`;c.fillRect(i,j,1,1)}
   WRAS=cv;return cv}
@@ -1878,7 +1932,7 @@ function drawWorldF(c,tx,tz,sc,big){
   t('⛏️'+(big?' منجم الحديد':''),MINE.x,MINE.z);if(big){t('⚔️ حصن النزاع',WC.x,WC.z-70,'#92400e');for(const kp of KPOS.slice(1))t(kp.k.ic+' '+kp.k.n,kp.x,kp.z,'#7f1d1d');for(const l of LMS)t(l.k.lmic+' '+l.k.lm,l.x,l.z+70);if(VOLC)t('🌋 البركان',VOLC.x,VOLC.z);for(const k of['spy1','spy2'])if(SPOT[k])t('👁️',SPOT[k].x,SPOT[k].z)}
   else{t('⚔️',WC.x,WC.z);for(const kp of KPOS.slice(1))t(kp.k.ic,kp.x,kp.z)}}
 function drawBig(){const cv=$('#bigmap'),c=cv.getContext('2d'),W=cv.width;c.clearRect(0,0,W,W);c.fillStyle='#e6eef7';c.fillRect(0,0,W,W);
-  const cx=mapZoom==='castle'?0:(LB.x0+LB.x1)/2,cz=mapZoom==='castle'?0:(LB.z0+LB.z1)/2,span=mapZoom==='castle'?250:Math.max(LB.x1-LB.x0,LB.z1-LB.z0);const sc=W/span;const tx=x=>W/2+(x-cx)*sc,tz=z=>W/2+(z-cz)*sc;
+  const cx0=mapZoom==='castle'?0:(LB.x0+LB.x1)/2,cz0=mapZoom==='castle'?0:(LB.z0+LB.z1)/2,sp0=mapZoom==='castle'?250:Math.max(LB.x1-LB.x0,LB.z1-LB.z0);MV.sp0=sp0;const lim=sp0/2;MV.x=clamp(MV.x,-lim,lim);MV.y=clamp(MV.y,-lim,lim);const span=sp0/MV.z,cx=cx0+MV.x,cz=cz0+MV.y;MV.cx0=cx0;MV.cz0=cz0;const sc=W/span;const tx=x=>W/2+(x-cx)*sc,tz=z=>W/2+(z-cz)*sc;
   if(mapZoom==='world'){{const r=worldRaster();c.drawImage(r,tx(WRAS_O.x),tz(WRAS_O.z),WRAS_O.s*sc,WRAS_O.s*sc)}drawWorldF(c,tx,tz,sc,true);
     c.font='14px sans-serif';c.textAlign='center';for(const a of ANIMALS){if(a.dead)continue;c.fillText(a.kind==='deer'?'🦌':'🦊',tx(a.m.position.x),tz(a.m.position.z))}}
   // moat + walls
@@ -1887,15 +1941,25 @@ function drawBig(){const cv=$('#bigmap'),c=cv.getContext('2d'),W=cv.width;c.clea
   c.fillStyle='#a8b3c2';c.fillRect(tx(-6),tz(-50),12*sc,(HZ+50)*sc);
   for(const[x,z,S]of TWS){c.fillStyle='#475569';c.fillRect(tx(x-S/2),tz(z-S/2),S*sc,S*sc)}
   c.fillStyle='#8b5a2b';c.fillRect(tx(-7),tz(HZ+3),14*sc,22*sc);
-  const lbl=(t,x,z,col)=>{c.font='bold '+(mapZoom==='castle'?20:13)+'px Cairo';c.textAlign='center';c.textBaseline='middle';const w=c.measureText(t).width+12;c.fillStyle='rgba(255,255,255,.85)';c.fillRect(tx(x)-w/2,tz(z)-13,w,26);c.fillStyle=col||'#0f172a';c.fillText(t,tx(x),tz(z)+1)};
+  const lbl=(t,x,z,col)=>{c.font='bold '+Math.round((mapZoom==='castle'?20:13)*Math.min(1.8,Math.sqrt(MV.z)))+'px Cairo';c.textAlign='center';c.textBaseline='middle';const w=c.measureText(t).width+12;c.fillStyle='rgba(255,255,255,.85)';c.fillRect(tx(x)-w/2,tz(z)-13,w,26);c.fillStyle=col||'#0f172a';c.fillText(t,tx(x),tz(z)+1)};
   for(const b of BUILDS){if(b.id.startsWith('tw'))continue;c.fillStyle=b.lock?'#94a3b8':'#64748b';c.fillRect(tx(b.x0),tz(b.z0),(b.x1-b.x0)*sc,(b.z1-b.z0)*sc)}
   if(mapZoom==='castle'){for(const b of BUILDS){if(b.id.startsWith('tw'))continue;const n=b.id.startsWith('house')?(b.lock?'🔒 '+b.owner:'🏠 بيتك'):(BICON[b.id]||'')+' '+b.name;lbl(n,(b.x0+b.x1)/2,(b.z0+b.z1)/2,b.lock?'#475569':'#0f172a')}
     lbl('📜 لوحة المهام',0,22,'#92400e');lbl('🛒 السوق',0,90);lbl('👑 التمثال',0,-24);lbl('🚪 البوابة',0,HZ+10,'#7f1d1d');lbl('🪜 درج السور',-HX+6,0);lbl('🪜 درج السور',HX-6,0);lbl('🪜 درج',58,HZ-6);lbl('🪜 درج',-58,HZ-6);for(const b of BALS)lbl('🏹',b.x,b.z)}
   else{lbl(HOMEK.ic+' قلعتك',0,-150,'#0f172a')}
   const tg=questTarget();if(tg){c.fillStyle='#ef1c1c';c.strokeStyle='#fff';c.lineWidth=3;c.beginPath();c.arc(tx(tg.x),tz(tg.z),11,0,TAU);c.fill();c.stroke();c.font='bold 18px Cairo';c.fillStyle='#b91c1c';c.fillText('هدف المهمة',tx(tg.x),tz(tg.z)-22)}
   c.save();c.translate(tx(P.pos.x),tz(P.pos.z));c.rotate(-P.ent.m.rotation.y+PI);c.fillStyle='#1d4ed8';c.strokeStyle='#fff';c.lineWidth=3;c.beginPath();c.moveTo(0,-16);c.lineTo(11,12);c.lineTo(0,6);c.lineTo(-11,12);c.closePath();c.fill();c.stroke();c.restore()}
-mini.addEventListener('click',()=>{drawBig();openM('mMap')});
-$$('#mapTabs button').forEach(b=>b.onclick=()=>{mapZoom=b.dataset.z;$$('#mapTabs button').forEach(x=>x.classList.toggle('on',x===b));drawBig()});
+mini.addEventListener('click',()=>{MV.z=1;MV.x=MV.y=0;drawBig();openM('mMap')});
+{const cv=$('#bigmap'),pts=new Map();let pd=0;
+  const k=()=>MV.sp0/MV.z/cv.getBoundingClientRect().width;
+  const zoomBy=f=>{MV.z=clamp(MV.z*f,1,8);mvDraw()};
+  cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const[a,b]=[...pts.values()];pd=Math.hypot(a.x-b.x,a.y-b.y)}});
+  cv.addEventListener('pointermove',e=>{const o=pts.get(e.pointerId);if(!o)return;
+    if(pts.size===1){MV.x-=(e.clientX-o.x)*k();MV.y-=(e.clientY-o.y)*k();o.x=e.clientX;o.y=e.clientY;mvDraw()}
+    else if(pts.size===2){o.x=e.clientX;o.y=e.clientY;const[a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pd>0)zoomBy(d/pd);pd=d}});
+  const up=e=>{pts.delete(e.pointerId);pd=0};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  cv.addEventListener('wheel',e=>{e.preventDefault();zoomBy(e.deltaY<0?1.2:1/1.2)},{passive:false});
+  $$('#bmZ button').forEach(b=>b.onclick=()=>{const v=+b.dataset.mz;if(v)zoomBy(v>0?1.5:1/1.5);else{MV.z=Math.max(MV.z,2.5);MV.x=P.pos.x-MV.cx0;MV.y=P.pos.z-MV.cz0;mvDraw()}})}
+$$('#mapTabs button').forEach(b=>b.onclick=()=>{mapZoom=b.dataset.z;MV.z=1;MV.x=MV.y=0;$$('#mapTabs button').forEach(x=>x.classList.toggle('on',x===b));drawBig()});
 
 /* ================= INPUT ================= */
 addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.code]=true;if(e.code==='Space'){jump();e.preventDefault()}if(e.code==='KeyF'||e.code==='KeyJ')attack();if(e.code==='KeyE')doAct();if(e.code==='KeyV')toggleView();if(e.code==='Enter'){openChat();$('#chatIn').focus()}if(e.code==='Escape'){closeM();closeChat()}updK()});
@@ -1917,9 +1981,10 @@ let curAct=null;
 function sitOn(st){const cs=.4*charScale*CHM;P.sit=st;P.sitP={x:st.x+Math.sin(st.ry)*cs,y:st.y-.48*charScale*(CHM-1),z:st.z+Math.cos(st.ry)*cs,f:st.ry};P.pos.set(P.sitP.x,P.sitP.y,P.sitP.z);P.face=st.ry;P.ent.m.rotation.y=st.ry;P.ent.once('Sit_Chair_Down',.8);sfx('leather',.4)}
 function updAct(){let a=questUpd();
   if(!a&&P.sit)a={ic:'🧍',t:'قم',fn:()=>{P.sit=null;P.ent.once('Sit_Chair_StandUp',.55)}};
+  if(!a&&SPOT.tavern&&S.sat<90&&(Math.hypot(P.pos.x-SPOT.tavern.x,P.pos.z-SPOT.tavern.z)<4||(P.sit&&P.inB&&P.inB.id==='tavern')))a={ic:'🍲',t:'تناول وجبة',fn:eatMeal};
   if(!a&&!P.sit&&!HORSE.on&&!JAIL.on){for(const st of SEATS){if(Math.abs(st.x-P.pos.x)<1.6&&Math.abs(st.z-P.pos.z)<1.6&&Math.hypot(st.x-P.pos.x,st.z-P.pos.z)<1.5){if(NPCS.some(n=>n.base&&/^Sit/.test(n.base)&&n.m.position.distanceTo(tmpD.set(st.x,0,st.z))<1.1))continue;a={ic:'🪑',t:'اجلس',fn:()=>sitOn(st)};break}}}if(BAL.cur)a={ic:'⬇️',t:'اترك المقذاف',fn:unmountBal};
   if(!a&&HORSE.on)a={ic:'🐎',t:'انزل عن الحصان',fn:dismount};else if(!a&&HORSE.can&&!JAIL.on)a={ic:'🐎',t:'اركب الحصان',fn:mount};
-  if(!a&&!S.quest&&(S.inv.meat||0)>0&&Math.hypot(P.pos.x-SPOT.store.x,P.pos.z-SPOT.store.z)<3.6)a={ic:'🍖',t:'سلّم اللحم للمخزن (+10 ذهب لكل قطعة)',fn:()=>{const n=takeItem('meat');S.gold+=10*n;addFood(4*n);save();hud();toast('🍖 شكرًا! +'+(10*n)+' ذهب')}};
+  if(!a&&!S.quest&&(S.inv.meat||0)>0&&Math.hypot(P.pos.x-SPOT.store.x,P.pos.z-SPOT.store.z)<3.6)a={ic:'🍖',t:'سلّم اللحم للمخزن (+10 ذهب و5 حصص لكل قطعة)',fn:()=>{const n=takeItem('meat');S.gold+=10*n;addFood(5*n);save();hud();toast('🍖 شكرًا! +'+(10*n)+' ذهب')}};
   if(!a&&!(S.quest&&curQuest().steps[S.quest.step].hunt))for(const an of ANIMALS)if(an.dead&&an.meat&&an.m.position.distanceTo(P.pos)<3.4){a={ic:'🍖',t:'خذ اللحم إلى حقيبتك',fn:()=>{P.ent.once('PickUp',.7);an.meat=false;an.m.visible=false;addItem('meat');toast('🍖 وضعت اللحم في حقيبتك')}};break}if(!a&&!JAIL.on){let bd=1e9;for(const it of INTER){const d=Math.hypot(P.pos.x-it.x,P.pos.z-it.z);if(d<it.r&&d<bd&&Math.abs(P.pos.y-(it.y||0))<3){bd=d;a=it}}}
   if(a!==curAct||(a&&$('#act').textContent!==a.ic+' '+a.t)){curAct=a;const b=$('#act');if(a){b.style.display='block';b.textContent=a.ic+' '+a.t}else b.style.display='none'}}
 function doAct(){if(curAct&&!modalOpen()){sfx('click',.5);curAct.fn()}}
@@ -1933,7 +1998,7 @@ function loop(now){
   if(!started){camera.position.set(Math.sin(t*.1)*260,120,Math.cos(t*.1)*260);camera.lookAt(0,10,0);sky.position.copy(camera.position);renderer.render(scene,camera);return}
   sky.position.copy(camera.position);updArrows(dt);updPlayer(dt);updEnemies(dt);updClimate(dt);updBirds(dt,t);if(frame%2===0)updTrees();updDoors(dt);updJail(dt);updBal(dt);updAnimals(dt);updFxs(dt);updCam(dt);if(shake>0){camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt*2)}
   if(frame%4===0){{const pr=$('#pcard').getBoundingClientRect();$('#quest').style.top=(pr.bottom+5)+'px'}$('#zone').textContent=zoneName();const b=P.inB;if(b&&b.lock){const out=b.dside==='e'?{x:b.x1+2.5,z:(b.z0+b.z1)/2}:{x:b.x0-2.5,z:(b.z0+b.z1)/2};P.pos.set(out.x,0,out.z);P.vy=0;toast('🔒 هذا البيت ملك لـ '+b.owner+' — لا يدخله إلا صاحبه')}
-    $('#stB i').style.width=P.stam+'%';$('#stB i').style.background=P.exhaust?'#ef4444':'';
+    $('#stB i').style.width=P.stam+'%';$('#stN').textContent=Math.round(P.stam);$('#stB i').style.background=P.exhaust?'#ef4444':'';
     const tg=questTarget(),qa=$('#qarrow');if(tg&&!BAL.cur&&Math.hypot(tg.x-P.pos.x,tg.z-P.pos.z)>25){const dx=tg.x-camera.position.x,dz=tg.z-camera.position.z;const cf=new V3();camera.getWorldDirection(cf);const ang=Math.atan2(dx*cf.z-dz*cf.x,dx*cf.x+dz*cf.z);const dist=Math.hypot(tg.x-P.pos.x,tg.z-P.pos.z);qa.style.display='block';qa.querySelector('.ar').style.transform='rotate('+(-ang)+'rad)';qa.querySelector('.dt').textContent=Math.round(dist)+' م'}else qa.style.display='none'}
   if(frame%3===0){updAct();const xh=$('#xh');if(BAL.cur||cam.fp===undefined){xh.style.display='none'}else{xh.style.display=modalOpen()?'none':'block';const tg=aimTarget(AT().ranged?AT().range:AT().range+1.2);xh.className=tg?(tg.k==='n'?'ui ally':'ui hit'):'ui';const v=aimPoint().clone().project(camera);xh.style.left=((v.x+1)/2*innerWidth)+'px';xh.style.top=((1-v.y)/2*innerHeight)+'px'}if(BAG)BAG.visible=invCount()>0&&!cam.fp}
   P.ent.mixer.update(dt);netTick(dt);
@@ -1950,10 +2015,11 @@ function loop(now){
   let fl=null,fd=1e9;for(const f of FIRES){const d=f.distanceTo(P.pos);if(d<fd){fd=d;fl=f}}if(fl&&fd<28){fireLight.position.copy(fl).y+=1.5;fireLight.intensity=(1.4+Math.sin(t*14)*.2)*(1-fd/28)*2}else fireLight.intensity=0;
   {const inside=P.inB?.15:insideWalls(P.pos.x,P.pos.z)?.45:1;if(AMB.wind)AMB.wind.gain.value=lerp(AMB.wind.gain.value,inside*(.55*(BWc.ice+BWc.sand+BWc.fire*.6)+.1*BWc.forest)*(1+nightK*.3),dt*1.5);if(AMB.birds)AMB.birds.gain.value=lerp(AMB.birds.gain.value,inside*(BWc.forest*.9+BWc.ice*.05+.08)*(1-nightK*.9),dt*1.5)}
   // kingdom food (drops slowly, hunting fills it)
-  if(!NET.on)S.foodT+=dt;if(S.foodT>90){S.foodT=0;S.food=Math.max(0,S.food-1);if(S.food===25)toast('⚠️ طعام المملكة قليل! الصيد مطلوب');if(S.food===0)toast('🚨 مجاعة! الجنود يضعفون، اخرجوا للصيد')}
+  if(!NET.on){S.foodT+=dt;if(S.foodT>60){S.foodT=0;const o=S.food;S.food=Math.max(0,S.food-.25);if(o>=30&&S.food<30)toast('⚠️ مخزن الطعام شبه فارغ! الصيد مطلوب');if(o>0&&S.food<=0)toast('🚨 المخزن فارغ! اخرجوا للصيد')}}
+  if(!JAIL.on&&!P.dead){const o=S.sat;S.sat=Math.max(0,S.sat-dt*100/3600);if(o>=25&&S.sat<25)toast('🍗 أنت جائع! تناول وجبة في الحانة');if(o>0&&S.sat<=0)toast('😵 تتضور جوعًا! ضرباتك أضعف وطاقتك بطيئة — اذهب إلى الحانة');if(frame%30===0)hud()}
   if(frame%20===0)updCounts();
   // regen in tavern
-  if(P.inB&&P.inB.id==='tavern'&&P.hp<maxHp()){P.hp=Math.min(maxHp(),P.hp+dt*(S.food<25?2:8));if(frame%10===0)hud()}
+  if(P.inB&&P.inB.id==='tavern'&&P.hp<maxHp()){P.hp=Math.min(maxHp(),P.hp+dt*(S.sat<25?2:8));if(frame%10===0)hud()}
   // day/night cycle
   const di=dayInfo();nightK=lerp(nightK,di.nk,Math.min(1,dt*2));skyU.night.value=nightK;
   const ph=di.nk>.5?'n':'d';if(lastPhase&&ph!==lastPhase)toast(ph==='n'?'🌙 حلّ الليل على '+HOMEK.n+' — الأبراج تضيء والحراسة الليلية تبدأ':'☀️ أشرق صباح جديد على المملكة');lastPhase=ph;
