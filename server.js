@@ -59,9 +59,29 @@ const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 64 * 1024 });
 /* ---------------- shared state ---------------- */
 const players = new Map(); // id -> session
 const admins = new Set();
-const meta = { lock: { ice: false, fire: false, sand: false }, mail: { ice: [], fire: [], sand: [] }, ev: { xp: 1, gold: 1, name: '' }, motd: '', rules: '', fort: { owner: 'fire', t: Date.now() }, food: { ice: 72, fire: 72, sand: 72 }, plots: { ice: [], fire: [], sand: [] } };
+const meta = { lock: { ice: false, fire: false, sand: false }, mail: { ice: [], fire: [], sand: [] }, ev: { xp: 1, gold: 1, name: '' }, motd: '', rules: '', fort: { owner: 'fire', t: Date.now() }, food: { ice: 72, fire: 72, sand: 72 }, plots: { ice: [], fire: [], sand: [] }, kings: { ice: '', fire: '', sand: '' }, tax: { ice: 0, fire: 0, sand: 0 }, treasury: { ice: 0, fire: 0, sand: 0 }, decree: { ice: '', fire: '', sand: '' } };
 const GQ_NEED = { gparade: 6, gwall: 3, gfort: 5, hunt: 3 };
 const NPLOTS = 16;
+/* group-quest lobbies: players register, the quest starts for everyone 15 s after the minimum is reached (more can still join) */
+const KING_PLAYERS = false; // king & top commanders stay computer-controlled for now; when enabled, only the owner crowns a king (admin panel)
+const LOBBY = new Map(); // `${k}|${q}` -> { k, q, need, ids: Set, go: 0 }
+const LOB_WAIT = 15000, LOB_MAX = 20;
+function lobPub(L) { return { t: 'lob', q: L.q, need: L.need, names: [...L.ids].map(i => players.get(i)).filter(Boolean).map(o => o.name), go: L.go ? Math.max(0, L.go - Date.now()) : 0 }; }
+function lobSend(L) { kAll(L.k, lobPub(L)); }
+function lobLeave(id, quiet) { for (const [key, L] of LOBBY) if (L.ids.delete(id)) { if (L.ids.size < L.need) L.go = 0; if (!L.ids.size) LOBBY.delete(key); if (!quiet) lobSend(L); } }
+function lobTick() {
+  const now = Date.now();
+  for (const [key, L] of LOBBY) {
+    for (const i of [...L.ids]) { const o = players.get(i); if (!o || !o.joined || o.k !== L.k) L.ids.delete(i); }
+    if (L.ids.size < L.need) L.go = 0;
+    if (L.go && now >= L.go) {
+      const names = [...L.ids].map(i => players.get(i).name);
+      for (const i of L.ids) send(players.get(i).ws, { t: 'lobGo', q: L.q, n: L.ids.size, names });
+      LOBBY.delete(key); kAll(L.k, { t: 'lob', q: L.q, need: L.need, names: [], go: 0, started: names.length });
+    }
+  }
+}
+setInterval(lobTick, 1000);
 store.ready.then(async () => { const m = await store.get('meta'); if (m) Object.assign(meta, m); }).catch(e => console.error(e));
 const saveMeta = () => store.put('meta', meta).catch(() => { });
 function kAll(k, o) { const s = JSON.stringify(o); for (const [, p] of players) if (p.joined && p.k === k && p.ws.readyState === 1) p.ws.send(s); }
@@ -79,7 +99,10 @@ const clean = (s, n) => String(s || '').replace(/[<>\u0000-\u001f]/g, '').trim()
 const num = (v, a, b) => { v = +v; return isFinite(v) ? Math.max(a, Math.min(b, v)) : 0; };
 const send = (ws, o) => { if (ws.readyState === 1) ws.send(JSON.stringify(o)); };
 function all(o, except) { const s = JSON.stringify(o); for (const [id, p] of players) if (id !== except && p.joined && p.ws.readyState === 1) p.ws.send(s); }
-const pub = (id, p) => ({ id, name: p.name, k: p.k, st: p.st, r: p.r, role: p.role, plot: p.plot == null ? -1 : p.plot });
+const pub = (id, p) => ({ id, name: p.name, k: p.k, st: p.st, r: p.r, role: p.role, plot: p.plot == null ? -1 : p.plot, kg: KING_PLAYERS && meta.kings && meta.kings[p.k] === p.name ? 1 : 0, look: p.look || null });
+const kState = k => ({ t: 'kst', king: meta.kings[k] || '', tax: meta.tax[k] || 0, tre: Math.round(meta.treasury[k] || 0), decree: meta.decree[k] || '' });
+function setKing(k, name) { adminTick(); const old = meta.kings[k]; meta.kings[k] = name || ''; saveMeta(); kAll(k, kState(k)); for (const [i, o] of players) if (o.joined && o.k === k && (o.name === old || o.name === name)) all({ t: 'upd', ...pub(i, o) }); if (name) all({ t: 'ann', m: '👑 ' + name + ' أصبح ملك ' + KN[k] + '!' }); }
+const cleanLook = l => (l && typeof l === 'object') ? { b: num(l.b, 0, 3) | 0, c: num(l.c, 0, 7) | 0, s: num(l.s, 0, 5) | 0 } : null;
 const hashPass = (pass, salt) => crypto.scryptSync(String(pass), salt, 32).toString('hex');
 const keyOf = n => 'acc:' + clean(n, 16).toLowerCase();
 const inForest = p => Math.hypot(p.x - WCC.x, p.z - WCC.z) < FOREST_R;
@@ -87,9 +110,10 @@ function bySession(name) { const k = keyOf(name); for (const [id, p] of players)
 
 function adminList() {
   const list = [...players].filter(([, p]) => p.joined || p.acc).map(([id, p]) => ({ ...pub(id, p), name: p.acc ? p.acc.name : p.name, k: p.joined ? p.k : (p.acc && p.acc.save && p.acc.save.kingdom) || p.k, joined: p.joined, x: Math.round(p.x), z: Math.round(p.z), gold: p.acc && p.acc.save ? p.acc.save.gold : 0 }));
-  const s = JSON.stringify({ t: 'list', lock: meta.lock, p: list, ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, storage: store.kind });
+  const s = JSON.stringify({ t: 'list', lock: meta.lock, p: list, ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, kings: meta.kings, treasury: meta.treasury, storage: store.kind });
   for (const a of admins) if (a.readyState === 1) a.send(s);
 }
+function adminTick() { setTimeout(adminList, 50); }
 async function persist(p) { if (p.acc) { p.acc.last = Date.now(); await store.put(keyOf(p.acc.name), p.acc).catch(e => console.error(e)); } }
 
 /* ---------------- chat translation (on demand, cached) ---------------- */
@@ -114,6 +138,7 @@ async function adminMsg(ws, m) {
   if (m.t === 'ann') { const t = clean(m.m, 200); if (t) all({ t: 'ann', m: t }); }
   if (m.t === 'ev') { meta.ev = { xp: num(m.xp, 1, 5), gold: num(m.gold, 1, 5), name: clean(m.name, 60) }; all({ t: 'ev', ev: meta.ev }); saveMeta(); }
   if (m.t === 'lock' && KS.includes(m.k)) { meta.lock[m.k] = !!m.on; kAll(m.k, { t: 'lock', k: m.k, on: meta.lock[m.k] }); saveMeta(); }
+  if (KING_PLAYERS && m.t === 'king' && KS.includes(m.k)) { setKing(m.k, clean(m.name, 16)); }
   if (m.t === 'motd') { meta.motd = clean(m.m, 200); saveMeta(); }
   if (m.t === 'rules') { meta.rules = clean(m.m, 1500); all({ t: 'rules', m: meta.rules }); saveMeta(); }
   if (m.t === 'kick') { const p = players.get(+m.id); if (p) { send(p.ws, { t: 'kick', m: clean(m.m, 120) }); p.ws.close(); } }
@@ -175,11 +200,11 @@ wss.on('connection', (ws, req) => {
         if (!m.s || typeof m.s !== 'object' || JSON.stringify(m.s).length > 40000) return;
         m.s.name = p.acc.name; p.acc.save = m.s; await persist(p);
       } else if (m.t === 'hello' || m.t === 'prof') {
-        p.name = p.acc.name; p.k = KS.includes(m.k) ? m.k : 'ice'; p.st = clean(m.st, 8); p.r = num(m.r, 0, 13) | 0; p.role = clean(m.role, 10);
+        p.name = p.acc.name; p.k = KS.includes(m.k) ? m.k : 'ice'; p.st = clean(m.st, 8); p.r = num(m.r, 0, 13) | 0; p.role = clean(m.role, 10); p.look = cleanLook(m.look);
         if (m.t === 'hello' && !p.joined) {
           p.joined = true;
           p.plot = plotFor(p);
-          send(ws, { t: 'welcome', id, lock: meta.lock, plot: p.plot, food: meta.food[p.k], ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, others: [...players].filter(([i, o]) => i !== id && o.joined).map(([i, o]) => pub(i, o)) });
+          send(ws, { t: 'welcome', id, lock: meta.lock, plot: p.plot, food: meta.food[p.k], ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, lobs: [...LOBBY.values()].filter(L => L.k === p.k).map(lobPub), ks: KING_PLAYERS ? kState(p.k) : null, others: [...players].filter(([i, o]) => i !== id && o.joined).map(([i, o]) => pub(i, o)) });
           if (((p.acc.save && p.acc.save.rank) || 0) >= 12) for (const ml of (meta.mail[p.k] || [])) send(ws, { t: 'mail', old: 1, ...ml });
           all({ t: 'add', ...pub(id, p) }, id);
         } else all({ t: 'upd', ...pub(id, p) }, id);
@@ -218,6 +243,39 @@ wss.on('connection', (ws, req) => {
       } else if (m.t === 'food') {
         const now = Date.now(); if (!p.joined || now - (p.lastFood || 0) < 800) return; p.lastFood = now;
         setFood(p.k, meta.food[p.k] + num(m.d, 0, 20)); saveMeta();
+      } else if (m.t === 'lobJoin') {
+        const need = GQ_NEED[m.q]; if (!need || !p.joined) return;
+        lobLeave(id, false);
+        const key = p.k + '|' + m.q; let L = LOBBY.get(key);
+        if (!L) { L = { k: p.k, q: m.q, need, ids: new Set(), go: 0 }; LOBBY.set(key, L); }
+        if (L.ids.size >= LOB_MAX) return send(ws, { t: 'ann', m: 'المجموعة ممتلئة' });
+        L.ids.add(id); if (L.ids.size >= L.need && !L.go) L.go = Date.now() + LOB_WAIT;
+        lobSend(L);
+      } else if (m.t === 'tax') {
+        const now = Date.now(); if (!p.joined || now - (p.lastTax || 0) < 20000) return; p.lastTax = now;
+        meta.treasury[p.k] = (meta.treasury[p.k] || 0) + num(m.g, 0, 30); saveMeta(); kAll(p.k, kState(p.k));
+      } else if (KING_PLAYERS && m.t && m.t[0] === 'K' && p.joined && meta.kings[p.k] === p.name) { // royal powers
+        const k = p.k;
+        if (m.t === 'Kdecree') { meta.decree[k] = clean(m.m, 200); saveMeta(); kAll(k, kState(k)); if (meta.decree[k]) kAll(k, { t: 'decree', m: meta.decree[k], by: p.name }); }
+        else if (m.t === 'Ktax') { meta.tax[k] = num(m.v, 0, 30) | 0; saveMeta(); kAll(k, kState(k)); kAll(k, { t: 'ann', m: '👑 الملك حدد الضريبة على الرواتب: ' + meta.tax[k] + '%' }); }
+        else if (m.t === 'Kgive') {
+          const mem = [...players.values()].filter(o => o.joined && o.k === k); const g = num(m.g, 0, meta.treasury[k] || 0) | 0; const each = Math.floor(g / Math.max(1, mem.length));
+          if (each < 1) return; meta.treasury[k] -= each * mem.length; saveMeta();
+          for (const o of mem) send(o.ws, { t: 'gift', g: each, by: p.name }); kAll(k, kState(k));
+        } else if (m.t === 'Kfood') { if ((meta.treasury[k] || 0) < 100) return; meta.treasury[k] -= 100; setFood(k, meta.food[k] + 15); saveMeta(); kAll(k, kState(k)); kAll(k, { t: 'ann', m: '👑 الملك اشترى طعامًا للمخزن من الخزينة (+15%)' }); }
+        else if (m.t === 'Kpardon') { const t = bySession(clean(m.name, 16)); if (t && t[1].k === k) { send(t[1].ws, { t: 'pardon', by: p.name }); send(ws, { t: 'ann', m: '✅ عفوت عن ' + t[1].name }); } else send(ws, { t: 'ann', m: 'اللاعب غير موجود في مملكتك' }); }
+        else if (m.t === 'Klock') { meta.lock[k] = !meta.lock[k]; kAll(k, { t: 'lock', k, on: meta.lock[k] }); saveMeta(); }
+        else if (m.t === 'Kabdicate') { setKing(k, ''); }
+      } else if (m.t === 'defect') {
+        const k = KS.includes(m.k) ? m.k : null; const sv = p.acc.save || {};
+        if (!k || k === p.k || (sv.defT && Date.now() - sv.defT < 24 * 3600 * 1000)) return send(ws, { t: 'defNo' });
+        if (!m.s || typeof m.s !== 'object' || JSON.stringify(m.s).length > 40000) return;
+        if (meta.kings[p.k] === p.name) setKing(p.k, '');
+        m.s.name = p.acc.name; m.s.kingdom = k; m.s.defT = Date.now(); p.acc.save = m.s; await persist(p);
+        kAll(p.k, { t: 'c', id: 0, name: '⚠️ خيانة', k: p.k, r: 0, m: p.name + ' انشق وانضم إلى ' + KN[k] + '!', ch: p.k });
+        send(ws, { t: 'defOK' });
+      } else if (m.t === 'lobLeave') {
+        lobLeave(id, false);
       } else if (m.t === 'gq') {
         const need = GQ_NEED[m.q]; if (!need || !p.joined) return; const now = Date.now(); p.gq = { q: m.q, s: num(m.s, 0, 20) | 0, t: now };
         const grp = [...players.values()].filter(o => o.joined && o.k === p.k && o.gq && o.gq.q === p.gq.q && o.gq.s === p.gq.s && now - o.gq.t < 4000);
@@ -230,7 +288,7 @@ wss.on('connection', (ws, req) => {
       }
     } catch (e) { console.error(e); }
   }
-  ws.on('close', () => { players.delete(id); if (p.joined) all({ t: 'del', id }); persist(p); adminList(); });
+  ws.on('close', () => { lobLeave(id, false); players.delete(id); if (p.joined) all({ t: 'del', id }); persist(p); adminList(); });
 });
 
 /* world snapshots 10x per second */
