@@ -134,14 +134,25 @@ async function translate(text, to) {
   return out;
 }
 
+/* owner texts (rules, announcements, welcome message) are translated once into every game language */
+const GAME_LANGS = ['ar', 'en', 'fr', 'es', 'pt', 'tr', 'ru'];
+async function trAll(text) {
+  const o = {}; if (!text) return o;
+  await Promise.all(GAME_LANGS.map(async l => {
+    const lines = text.split('\n'); const out = [];
+    for (const ln of lines) out.push(ln.trim() ? ((await translate(ln, l)) || ln) : ln);
+    o[l] = out.join('\n');
+  }));
+  return o;
+}
 /* ---------------- admin ---------------- */
 async function adminMsg(ws, m) {
-  if (m.t === 'ann') { const t = clean(m.m, 200); if (t) all({ t: 'ann', m: t }); }
+  if (m.t === 'ann') { const t = clean(m.m, 200); if (t) all({ t: 'ann', m: t, tr: await trAll(t) }); }
   if (m.t === 'ev') { meta.ev = { xp: num(m.xp, 1, 5), gold: num(m.gold, 1, 5), name: clean(m.name, 60) }; all({ t: 'ev', ev: meta.ev }); saveMeta(); }
   if (m.t === 'lock' && KS.includes(m.k)) { meta.lock[m.k] = !!m.on; kAll(m.k, { t: 'lock', k: m.k, on: meta.lock[m.k] }); saveMeta(); }
   if (KING_PLAYERS && m.t === 'king' && KS.includes(m.k)) { setKing(m.k, clean(m.name, 16)); }
-  if (m.t === 'motd') { meta.motd = clean(m.m, 200); saveMeta(); }
-  if (m.t === 'rules') { meta.rules = clean(m.m, 1500); all({ t: 'rules', m: meta.rules }); saveMeta(); }
+  if (m.t === 'motd') { meta.motd = clean(m.m, 200); meta.motdTr = await trAll(meta.motd); saveMeta(); }
+  if (m.t === 'rules') { meta.rules = String(m.m || '').replace(/[<>\u0000-\u0009\u000b-\u001f]/g, '').trim().slice(0, 1500); meta.rulesTr = await trAll(meta.rules); all({ t: 'rules', m: meta.rules, tr: meta.rulesTr }); saveMeta(); }
   if (m.t === 'kick') { const p = players.get(+m.id); if (p) { send(p.ws, { t: 'kick', m: clean(m.m, 120) }); p.ws.close(); } }
   if (m.t === 'jail') { const p = players.get(+m.id); if (p) send(p.ws, { t: 'jail', secs: num(m.secs, 10, 3600) | 0, why: clean(m.why, 120) || 'أمر من صاحب اللعبة' }); }
   if (m.t === 'gold' || m.t === 'rank' || m.t === 'ban') {
@@ -205,7 +216,7 @@ wss.on('connection', (ws, req) => {
         if (m.t === 'hello' && !p.joined) {
           p.joined = true;
           p.plot = plotFor(p);
-          send(ws, { t: 'welcome', id, lock: meta.lock, plot: p.plot, food: Math.floor(meta.food[p.k]), ev: meta.ev, motd: meta.motd, rules: meta.rules, fort: meta.fort, lobs: [...LOBBY.values()].filter(L => L.k === p.k).map(lobPub), ks: KING_PLAYERS ? kState(p.k) : null, others: [...players].filter(([i, o]) => i !== id && o.joined).map(([i, o]) => pub(i, o)) });
+          send(ws, { t: 'welcome', id, lock: meta.lock, plot: p.plot, food: Math.floor(meta.food[p.k]), ev: meta.ev, motd: meta.motd, motdTr: meta.motdTr || {}, rules: meta.rules, rulesTr: meta.rulesTr || {}, fort: meta.fort, lobs: [...LOBBY.values()].filter(L => L.k === p.k).map(lobPub), ks: KING_PLAYERS ? kState(p.k) : null, others: [...players].filter(([i, o]) => i !== id && o.joined).map(([i, o]) => pub(i, o)) });
           if (((p.acc.save && p.acc.save.rank) || 0) >= 12) for (const ml of (meta.mail[p.k] || [])) send(ws, { t: 'mail', old: 1, ...ml });
           all({ t: 'add', ...pub(id, p) }, id);
         } else all({ t: 'upd', ...pub(id, p) }, id);

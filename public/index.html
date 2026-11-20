@@ -205,6 +205,10 @@ body.ltr .toast,body.ltr .box,body.ltr #startBox,body.ltr #kPick,body.ltr #pcard
  #loginBox{padding:9px}#loginBox .inp{padding:6px 10px}
  #kPick h3{margin:2px 0 6px!important}
 }
+body.intro .ui,body.intro #joy,body.intro #acts,body.intro #act,body.intro #toasts,body.intro #banner{visibility:hidden!important}
+#intro{position:fixed;left:0;right:0;bottom:0;z-index:70;display:none;padding:0 4vw 4vh;background:linear-gradient(transparent,rgba(2,6,23,.85) 45%)}
+#intro .t{max-width:760px;margin:0 auto;color:#f8fafc;font-size:clamp(15px,2.4vw,21px);line-height:1.75;text-align:center;text-shadow:0 2px 8px #000;min-height:3.4em}
+#intro .b{display:flex;justify-content:center;gap:10px;margin-top:12px}#intro .dots{text-align:center;color:#fbbf24;letter-spacing:6px;margin-top:6px;font-size:12px}
 </style>
 </head>
 <body>
@@ -293,6 +297,8 @@ body.ltr .toast,body.ltr .box,body.ltr #startBox,body.ltr #kPick,body.ltr #pcard
   <div class="card" id="outCard" style="display:none"><div class="r"><span>🚪 تسجيل الخروج</span><button class="btn gr" id="sOut">خروج</button></div></div>
   <div class="card"><div class="r"><span>🗑️ مسح التقدم</span><button class="btn gr" id="sReset">مسح</button></div></div>
 </div></div>
+<div id="intro"><div class="t" id="inTxt"></div><div class="b"><button class="btn gr" id="inSkip">تخطَّ</button><button class="btn gold" id="inNext">التالي ›</button></div><div class="dots" id="inDots"></div></div>
+<div class="modal" id="mTalk"><div class="box" style="width:min(520px,94vw)"><button class="x" data-x>✕</button><h2 id="tkWho"></h2><div id="tkTxt" style="font-size:16px;line-height:1.7;margin:6px 0 12px;min-height:60px"></div><div class="r"><span class="muted" id="tkStep"></span><button class="btn gold" id="tkNext">التالي ›</button></div></div></div>
 <div class="modal" id="mKing"><div class="box" style="width:min(460px,94vw)"><button class="x" data-x>✕</button><h2>👑 العرش</h2><div id="kingBody"></div></div></div>
 <div class="modal" id="mDef"><div class="box" style="width:min(460px,94vw)"><button class="x" data-x>✕</button><h2>⚠️ الانشقاق</h2><div id="defBody"></div></div></div>
 
@@ -329,6 +335,14 @@ const RANK_TASKS=['الحراسة، الدوريات، نقل المؤن، ال�
 const RANK_LOOK=['لباس الجندي العادي','شريطة واحدة على الصدر','شريطتان على الصدر','ثلاث شرائط','ثلاث شرائط ونجمة','نجمة + واقيات أكتاف + عباءة زرقاء','نجمتان + واقيات أكتاف + عباءة زرقاء','ثلاث نجوم + عباءة زرقاء','نسر ذهبي + عباءة حمراء + ريشة حمراء','نسر ونجمة + عباءة حمراء','نسر ونجمتان + عباءة حمراء','نسر وثلاث نجوم + كتّافات ذهبية','سيفان متقاطعان ونجمة + عباءة ملكية + ريشة ذهبية','سيفان متقاطعان ونسر + عباءة ملكية + ريشة ذهبية'];
 const RANK_ICON=['','›','»','≫','≫★','★','★★','★★★','🦅','🦅★','🦅★★','🦅★★★','⚔️★','⚔️🦅'];
 const QUESTS=[
+ {id:'st1',type:'story',ch:1,minRank:0,out:true,n:'الفصل 1: النجم الساقط',ic:'📖',d:'اقرأ النبوءة، واسأل الحداد بورغ عن حديد النجم، ثم أنصت لصخر المنجم في غابة النزاع',g:60,xp:80,
+  steps:[{s:'statue',t:'اقرأ النبوءة على قاعدة تمثال الملك',a:'📜 اقرأ النقش',who:'نقش على قاعدة التمثال',say:'prophecy'},{s:'smith',t:'اسأل بورغ الحداد عن حديد النجم',a:'💬 تحدّث مع بورغ',who:'بورغ الحدّاد',say:'borg1'},{s:'mine',t:'اذهب إلى منجم حديد النجم في غابة النزاع',a:'✋ ضع يدك على الصخر',who:'الصخر',say:'mine1'},{s:'smith',t:'عُد إلى بورغ وأخبره بما شعرت',a:'💬 تحدّث مع بورغ',who:'بورغ الحدّاد',say:'borg2'}]},
+ {id:'st2',type:'story',ch:2,minRank:1,prev:'st1',out:true,n:'الفصل 2: الذئاب لا تجوع',ic:'📖',d:'الصيّادة ليلى رأت رجلًا غريبًا يمشي بين الذئاب. اكتشف من يكون',g:90,xp:140,
+  steps:[{s:'laila',t:'تحدّث مع الصيّادة ليلى عند البوابة',a:'💬 تحدّث مع ليلى',who:'ليلى الصيّادة',say:'laila1'},{wolves:3,t:'اقتل 3 ذئاب في البرية'},{s:'fort',t:'ابحث في حصن العهد عن آثار الرجل الغريب',a:'🔍 ابحث',who:'حصن العهد',say:'fort1'},{s:'laila',t:'عُد إلى ليلى وأخبرها بما وجدت',a:'💬 تحدّث مع ليلى',who:'ليلى الصيّادة',say:'laila2'}]},
+ {id:'st3',type:'story',ch:3,minRank:3,prev:'st2',out:true,n:'الفصل 3: سرّ المملكة',ic:'📖',d:'مرزا صاحب الحانة يعرف شائعة عن معلم مملكتك. اذهب ليلًا وانظر بنفسك',g:140,xp:220,
+  steps:[{s:'tavern',t:'اسأل مرزا صاحب الحانة عن الشائعات',a:'💬 تحدّث مع مرزا',who:'مرزا',say:'mirza1'},{s:'lake',night:1,t:'اذهب ليلًا إلى {LM}',a:'🔦 تفحّص المكان',who:'{LM}',say:'lm1'},{s:'king',t:'أبلغ الملك بما رأيت',a:'🙇 قدّم تقريرك',who:'الملك',say:'king1'}]},
+ {id:'st4',type:'story',ch:4,minRank:5,prev:'st3',n:'الفصل 4: الحمامة البيضاء',ic:'📖',d:'رسالة بخط ملك مات منذ 300 عام. وخائن في قاعة القادة',g:180,xp:300,
+  steps:[{s:'noah',t:'تحدّث مع نوح حارس الحمام',a:'💬 تحدّث مع نوح',who:'نوح',say:'noah1'},{s:'council',t:'أطلع القائد الأعلى في قاعة القادة على الرسالة',a:'📜 سلّم الرسالة',who:'القائد الأعلى',say:'council1'},{s:'tavern',t:'راقب مرزا في الحانة',a:'👀 راقب',who:'مرزا',say:'mirza2'}]},
  {id:'hunt',type:'role',need:3,role:'hunter',n:'رحلة صيد',ic:'🦌',out:true,d:'تصبح صيّادًا بقوسك: اخرج واصطد 3 حيوانات (غزلان أو ثعالب)، اجمع لحمها، ثم أعده كله إلى المخزن',g:60,xp:55,
   steps:[{s:'gate',group:3,t:'اجتمعوا 3 صيّادين أو أكثر عند البوابة'},{hunt:3,t:'ابحث في البرية واصطد 3 حيوانات'},{s:'store',t:'أعد اللحم كله إلى مخزن المملكة',a:'سلّم اللحم',drop:1}]},
  {id:'heal',type:'role',role:'doctor',n:'علاج الجرحى',ic:'🩺',d:'تصبح طبيبًا: عالج 3 جنود جرحى في دار الطبيب',g:45,xp:40,
@@ -755,13 +769,13 @@ function tavern(){
   for(const z of[-32,-24,-16])prop('d:bottle_A_green',85,1.7,z+1,0,DS*.8);
   const tables=[[66,-34],[66,-24],[74,-30],[74,-14]];
   for(const[x,z]of tables){prop('d:table_medium_tablecloth',x,0,z,0,DS,{col:true,far:60});prop('d:plate_food_A',x,1.0,z,rr(0,3),DS*.9);for(const dx of[-1.8,1.8])prop('d:chair',x+dx,0,z,dx<0?PI/2:-PI/2,DS,{far:60})}
-  npc('Barbarian','Idle',88.2,0,-22,-PI/2,{name:'صاحب الحانة',hide:['1H_Axe_Offhand','2H_Axe','1H_Axe','Barbarian_Round_Shield']});
+  npc('Barbarian','Idle',88.2,0,-22,-PI/2,{name:'مرزا • صاحب الحانة',hide:['1H_Axe_Offhand','2H_Axe','1H_Axe','Barbarian_Round_Shield']});
   const eat=[['Rogue_Hooded',66-1.8+.4*charScale*CHM,-34,PI/2],['Knight',74+1.8-.4*charScale*CHM,-30,-PI/2],['Barbarian',66-1.8+.4*charScale*CHM,-24,PI/2]];
   eat.forEach(([c,x,z,r],i)=>{npc(c,'Sit_Chair_Idle',x,-.48*charScale*(CHM-1),z,r,{name:'جندي',noCol:true});SPOT['eat'+i]={x:x+(r>0?-1.6:1.6),y:0,z:z+1.4,r:3};EATERS.push({x:x+(r>0?1.1:-1.1),z})});
   SPOT.stove={x:74,y:0,z:-38,r:3.4};
   fireplace(74,-41,0,5);
   prop('d:banner_patternB_blue',57.6,2.8,-34,PI/2,DS*1.3,{far:60});
-  SPOT.tavern={x:82,y:0,z:-22,r:2.5};
+  SPOT.tavern={x:82,y:0,z:-22,r:2.5};INTER.push({x:84,z:-22,r:2.2,ic:'💬',t:'تحدّث مع مرزا',fn:()=>openTalk('مرزا',[lore('a_mirza')[Math.random()*3|0]])});
   
   torch(90.4,4,-30,-PI/2);torch(57.6,4,-10,PI/2);
 }
@@ -814,10 +828,10 @@ function smithy(){
   B.box('stoneD',-46.5,-43.5,2.2,8,47.5,50.5);
   B.box('iron',-38,-35,1.2,1.8,50,51.2);B.box('iron',-37.2,-35.8,0,1.2,50.2,51,true);
   prop('h:weaponrack',-32,0,57,0,8,{col:true});prop('d:barrel_large',-48,0,57,0,DS,{col:true});prop('d:sword_shield',-31,2.2,46,PI,DS*1.2);
-  npc('Barbarian','1H_Melee_Attack_Chop',-45,0,52.4,PI,{name:'الحدّاد',hide:['1H_Axe_Offhand','2H_Axe','Mug','Barbarian_Round_Shield']});
+  npc('Barbarian','1H_Melee_Attack_Chop',-45,0,52.4,PI,{name:'بورغ • الحدّاد',hide:['1H_Axe_Offhand','2H_Axe','Mug','Barbarian_Round_Shield']});
   SPOT.anvil={x:-36.5,y:0,z:52.8,r:3.2};
   const lb=label('⚒️ الحدّاد',{h:.7});lb.position.set(-40,8,60);
-  SPOT.smith={x:-45,y:0,z:55.2,r:3};
+  SPOT.smith={x:-45,y:0,z:55.2,r:3};INTER.push({x:-45,z:55.2,r:2.6,ic:'💬',t:'تحدّث مع بورغ',fn:()=>openTalk('بورغ الحدّاد',[lore('a_borg')[Math.random()*3|0]])});
   
   BUILDS.push({id:'smith',name:'الحدّاد',x0,x1,z0,z1,y0:-1,y1:7,roof:[]});
 }
@@ -848,7 +862,7 @@ function plazaThings(){
   for(let i=0;i<5;i++){const p=new THREE.Mesh(new THREE.PlaneGeometry(1,1.3),SM({color:L(0xf5e6c4)}));p.position.set(-2.4+i*1.2,3+(i%2)*.3,22.17);p.rotation.z=rr(-.08,.08);scene.add(p)}
   col(-3.3,3.3,0,5,21.7,22.3);
   const lb=label('📜 لوحة المهام',{h:.85,border:'#fbbf24',near:40});lb.position.set(0,7.2,22);
-  SPOT.board={x:0,y:0,z:24.5,r:3.4};SPOT.statue={x:0,y:0,z:-16.5,r:4};
+  SPOT.board={x:0,y:0,z:24.5,r:3.4};SPOT.statue={x:0,y:0,z:-16.5,r:4};INTER.push({x:0,z:-16.5,r:4.2,ic:'📜',t:'اقرأ نقش النبوءة',fn:()=>openTalk('نقش على قاعدة التمثال',lore('prophecy'))});
   INTER.push({x:0,z:24.5,r:3.4,ic:'📜',t:'افتح لوحة المهام',fn:openBoard});
   // statue of the king
   B.box('stone',-6,6,0,.6,-30,-18,true);plat(-6,6,-30,-18,.6);B.box('stone',-5,5,.6,1.2,-29,-19,true);plat(-5,5,-29,-19,1.2);B.box('stoneD',-3.4,3.4,1.2,3.9,-27.4,-20.6,true);B.box('stone',-3.9,3.9,3.9,4.2,-27.9,-20.1,true);B.box('gold',-1.4,1.4,1.9,3,-20.65,-20.55);
@@ -877,7 +891,7 @@ function buildGate(){const GATE_=SHELL?{leaves:[]}:GATE;
     piv.position.set(sgn*7,6.5,HZ-2.2);piv.userData.sgn=sgn;scene.add(piv);GATE_.leaves.push(piv)}
   GATE_.c=col(-7,7,0,13,HZ-2.6,HZ-1.8);
   if(SHELL){for(const x of[-10,10]){const ge=npc('Knight','Idle',x,0,HZ+8,0,{keep:true,friendly:false,noCol:false,name:'🛡️ حارس '+CURK.n});ge.foreign=true};const fl=label(CURK.ic+' بوابة '+CURK.n,{h:1.4,near:260,keep:true,border:CURK.css});fl.position.set(0,22,HZ+3.5);return}
-  const gi=npc('Knight','Idle',-9.5,0,HZ-8,0,{name:'🛡️ جندي • حارس البوابة'}),gj=npc('Knight','Idle',9.5,0,HZ-8,0,{name:'🛡️ جندي • حارس البوابة'});GATE.guards=[gi,gj];
+  const gi=npc('Knight','Idle',-9.5,0,HZ-8,0,{name:'🛡️ جندي • حارس البوابة'}),gj=npc('Knight','Idle',9.5,0,HZ-8,0,{name:'🛡️ جندي • حارس البوابة'});GATE.guards=[gi,gj];npc('Rogue_Hooded','Idle',15,0,HZ-17,PI,{name:'ليلى • الصيّادة',hide:ROGUE_HIDE});SPOT.laila={x:15,y:0,z:HZ-14.5,r:3.2};INTER.push({x:15,z:HZ-14.5,r:3,ic:'💬',t:'تحدّث مع ليلى',fn:()=>openTalk('ليلى الصيّادة',[lore('a_laila')[Math.random()*3|0]])});
   npc('Knight','Idle',-10,0,HZ+8,0,{name:'🛡️ جندي • حارس البوابة'});npc('Knight','Idle',10,0,HZ+8,0,{name:'🛡️ جندي • حارس البوابة'});
   SPOT.gate={x:0,y:0,z:HZ-7,r:6};
   const lb=label('🚪 البوابة الكبرى',{h:.8,near:60});lb.position.set(0,14.5,HZ-3.5);
@@ -1207,6 +1221,12 @@ function applyLook(e,lk,role){if(!e||!lk)return;
 let LOOK_Y=.13,LOOK_Z=.42;
 function addCrown(e){const hd=headBone(e);if(!hd)return;const crown=new THREE.Group();const base=new THREE.Mesh(new THREE.CylinderGeometry(.42,.38,.26,10,1,true),MAT.gold);base.material.side=THREE.DoubleSide;crown.add(base);for(let i=0;i<5;i++){const s=new THREE.Mesh(new THREE.ConeGeometry(.08,.3,4),MAT.gold);const a=i/5*TAU;s.position.set(Math.cos(a)*.38,.25,Math.sin(a)*.38);crown.add(s)}crown.scale.setScalar(1/charScale*.9);crown.position.set(0,1.02/charScale,0);hd.add(crown)}
 const KING_PLAYERS=false; // the king and top commanders stay computer-controlled for now
+const INTRO=['قبل 300 عام، سقط نجم أزرق على قلعة الملك الأعلى أوريان... ونبتت فوقه غابة كاملة في سنة واحدة.','قسّم أوريان أرضه بين ورثته الثلاثة: الجليد والنار والرمال. وكانت آخر كلماته: «لا تلمسوا الغابة حتى يعود الرابع».','اليوم تتقاتل الممالك على حصن العهد وحديد النجم. وأنت جندي جديد في {K}... ويقال إن الرابع يمشي بين الجنود.'];
+function runIntro(done){let i=0;document.body.classList.add('intro');const box=$('#intro');box.style.display='block';const V=(x,y,z)=>new V3(x,y,z);
+  const shots=[t=>({p:V(WC.x+130-t*4,70+t*1.5,WC.z-150+t*3),l:V(WC.x,2,WC.z)}),t=>({p:V(SPOT.statue.x+Math.sin(.6+t*.06)*14,6+t*.2,SPOT.statue.z+Math.cos(.6+t*.06)*14),l:V(SPOT.statue.x,4.5,SPOT.statue.z)}),t=>({p:V(P.pos.x+Math.sin(cam.yaw)*(9-t*.3),P.pos.y+3.2,P.pos.z+Math.cos(cam.yaw)*(9-t*.3)),l:V(P.pos.x,P.pos.y+1.5,P.pos.z)})];
+  const show=()=>{$('#inTxt').textContent=tr(INTRO[i]).replace('{K}',HOMEK.ic+' '+tr(HOMEK.n));$('#inNext').textContent=i<INTRO.length-1?'التالي ›':'ابدأ رحلتك ⚔️';$('#inDots').textContent=INTRO.map((_,j)=>j===i?'●':'○').join('');const s=shots[i];const c0=s(0);STC={f:s,t0:performance.now()/1000,l:c0.l.clone()};if(i===0)camera.position.copy(c0.p);sfx('book',.4)};
+  const end=()=>{STC=null;box.style.display='none';document.body.classList.remove('intro');S.introSeen=true;try{localStorage.setItem('kc_intro_'+(S.name||''),'1')}catch(e){}save();if(NET.authed&&NET.on){NET.dirty=false;netSend({t:'save',s:S})}if(done)done()};
+  $('#inNext').onclick=()=>{if(++i<INTRO.length)show();else end()};$('#inSkip').onclick=end;show()}
 const isKing=()=>KING_PLAYERS&&!!(NET.on&&NET.ks&&NET.ks.king&&NET.ks.king===S.name);
 function setPlayerChar(){setTimeout(buildGear,0);const old=P.ent;const t=lookFor(S.stype,S.role,S.rank);P.ent=makeChar(t.ch,t.hide);if(t.extra)attachExtra(P.ent.m,t.extra);tintLook(P.ent,S.rank,S.stype,S.role);applyLook(P.ent,S.look,S.role);if(isKing())addCrown(P.ent);if(old){P.ent.m.rotation.y=old.m.rotation.y;scene.remove(old.m)}scene.add(P.ent.m);P.ent.play('Idle');P.hp=Math.min(P.hp||maxHp(),maxHp())}
 function attachExtra(m,kind){let hr=null,hl=null;m.updateMatrixWorld(true);m.traverse(o=>{if(/handslot.?r$/i.test(o.name))hr=o;if(/handslot.?l$/i.test(o.name))hl=o});
@@ -1307,7 +1327,8 @@ let HORSE_FACE=0;const SADDLE={y:1.05,z:-.15};
 function jump(){if(P.onG&&!JAIL.on&&!HORSE.on&&!BAL.cur){P.vy=10.5;P.onG=false;P.jumpT=.5}}
 const camT=new V3(),head=new V3(),tmpD=new V3();const SITY=0;
 function rayBox(o,d,c){let t0=0,t1=1;for(const[a,da,mn,mx]of[[o.x,d.x,c.x0,c.x1],[o.y,d.y,c.y0,c.y1],[o.z,d.z,c.z0,c.z1]]){if(Math.abs(da)<1e-6){if(a<mn||a>mx)return 2}else{let ta=(mn-a)/da,tb=(mx-a)/da;if(ta>tb){const q=ta;ta=tb;tb=q}t0=Math.max(t0,ta);t1=Math.min(t1,tb);if(t0>t1)return 2}}return t0}
-function updCam(dt){
+let STC=null;
+function updCam(dt){if(STC){const c=STC.f(performance.now()/1000-STC.t0);camera.position.lerp(c.p,1-Math.exp(-dt*2.5));STC.l.lerp(c.l,1-Math.exp(-dt*2.5));camera.lookAt(STC.l);return}
   if(S.autoCam&&!cam.fp&&!BAL.cur&&!JAIL.on&&!modalOpen()&&performance.now()-(cam.lastDrag||0)>2000){const mv=Math.min(1,Math.hypot(input.jx+input.kx,input.jz+input.kz));if(mv>.15){let d=(P.face+PI)-cam.yaw;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)<2.6){const rate=[0,1.1,2,3.4][S.autoSpd||2]*(HORSE.on?1.5:1)*mv;cam.yaw+=d*Math.min(1,rate*dt)}}}
   if(cam.dYaw||cam.dPitch){const f=1-Math.exp(-dt*22);const a=(cam.dYaw||0)*f,b=(cam.dPitch||0)*f;cam.yaw+=a;cam.dYaw-=a;cam.pitch=clamp(cam.pitch+b,cam.fp?-1.2:-.75,1.2);cam.dPitch-=b;if(Math.abs(cam.dYaw)<1e-4)cam.dYaw=0;if(Math.abs(cam.dPitch)<1e-4)cam.dPitch=0}
   if(BAL.cur){const b=BAL.cur;const A=b.ry+b.aimY;const dir=new V3(Math.sin(A),0,Math.cos(A));const bp=new V3(b.x,WH+2.6,b.z);camT.copy(bp).addScaledVector(dir,-6.5).y+=2.2;camera.position.lerp(camT,1-Math.exp(-dt*10));const look=bp.clone().addScaledVector(dir,30);look.y+=Math.tan(b.aimP)*30;camera.lookAt(look);return}
@@ -1583,7 +1604,7 @@ function buildDovecote(){const x=-40,z=-58;B.box('woodD',x-.3,x+.3,0,6,z-.3,z+.3
   const r=new THREE.Mesh(new THREE.ConeGeometry(2.8,2,4).rotateY(PI/4),MAT.roof);r.position.set(x,9.4,z);r.castShadow=true;scene.add(r);
   for(let i=0;i<3;i++){const d=makeDove();d.position.set(x-1+i,8.6,z+1.4);d.rotation.y=rr(-1,1)}
   const lb=label('🕊️ برج الحمام الزاجل',{h:.7});lb.position.set(x,11.5,z);
-  INTER.push({x,z:z+2.6,r:3,ic:'🕊️',t:'أرسل حمامة زاجلة',fn:openDove});SPOT.dove={x,y:0,z:z+2.6,r:3}}
+  INTER.push({x,z:z+2.6,r:3,ic:'🕊️',t:'أرسل حمامة زاجلة',fn:openDove});SPOT.dove={x,y:0,z:z+2.6,r:3};npc('Mage','Idle',x+3.2,0,z+.6,-PI/2,{name:'نوح • حارس الحمام',hide:MAGE_HIDE});SPOT.noah={x:x+3.2,y:0,z:z+2.8,r:3};INTER.push({x:x+3.2,z:z+2.8,r:2.4,ic:'💬',t:'تحدّث مع نوح',fn:()=>openTalk('نوح',[lore('a_noah')[Math.random()*3|0]])})}
 let doveTo=1,doveType='peace';
 let doveTab='send';function openDove(){if(S.rank<12){toast('🕊️ الحمام الزاجل للملك وقادة الجيش الكبار فقط (رتبة لواء فما فوق)');return}const body=$('#doveBody');const ks=KPOS.slice(1);
   if(NET.on){const tb=`<div class="tabs"><button data-dt="send" class="${doveTab==='send'?'on':''}">✉️ رسالة سرية</button><button data-dt="in" class="${doveTab==='in'?'on':''}">📬 الرسائل الواردة (${(NET.mail||[]).length})</button></div>`;
@@ -1661,7 +1682,7 @@ function netUpd(o){const r=NET.P.get(o.id);if(!r)return;Object.assign(r,o);if(r.
 function netDel(id){const r=NET.P.get(id);if(!r)return;if(r.k===HOMEK.id&&r.plot>=0&&r.plot!==MY_PLOT&&HOUSES[r.plot]&&HOUSES[r.plot].owner===r.name)removeHouse(r.plot);if(r.ent)scene.remove(r.ent.m);if(r.tag)scene.remove(r.tag);NET.P.delete(id);netBadge()}
 function netMsg(m){
   if(m.t==='auth')return netAuth(m);
-  if(m.t==='welcome'){NET.id=m.id;NET.ev=m.ev||NET.ev;NET.rules=m.rules||'';NET.lock=!!(m.lock&&m.lock[HOMEK.id]);if(m.fort&&KD[m.fort.owner]){S.fort={owner:m.fort.owner,t:m.fort.t};refreshFort()}if(m.food!=null){S.food=m.food;updCounts()}if(m.plot!=null&&m.plot!==MY_PLOT)setMyPlot(m.plot);for(const o of m.others||[])netAdd(o);LOB={};for(const l of m.lobs||[])lobSet(l);if(m.ks)kSet(m.ks);if(m.motd)chatMsg('📯 المنادي',m.motd,'#fbbf24');toast('🟢 دخلت العالم الأونلاين');netBadge()}
+  if(m.t==='welcome'){NET.id=m.id;NET.ev=m.ev||NET.ev;NET.rules=(m.rulesTr&&m.rulesTr[LANG])||m.rules||'';NET.lock=!!(m.lock&&m.lock[HOMEK.id]);if(m.fort&&KD[m.fort.owner]){S.fort={owner:m.fort.owner,t:m.fort.t};refreshFort()}if(m.food!=null){S.food=m.food;updCounts()}if(m.plot!=null&&m.plot!==MY_PLOT)setMyPlot(m.plot);for(const o of m.others||[])netAdd(o);LOB={};for(const l of m.lobs||[])lobSet(l);if(m.ks)kSet(m.ks);if(m.motd)chatMsg('📯 المنادي',(m.motdTr&&m.motdTr[LANG])||m.motd,'#fbbf24');toast('🟢 دخلت العالم الأونلاين');netBadge()}
   else if(m.t==='add'){netAdd(m);chatMsg('النظام',(KD[m.k]?KD[m.k].ic+' ':'')+m.name+' دخل العالم','#86efac')}
   else if(m.t==='upd')netUpd(m);
   else if(m.t==='del'){const r=NET.P.get(m.id);if(r)chatMsg('النظام',r.name+' غادر العالم','#94a3b8');netDel(m.id)}
@@ -1669,7 +1690,7 @@ function netMsg(m){
   else if(m.t==='c'){const K=KD[m.k]||KD.ice;chatMsg(K.ic+' '+m.name+(RANKS[m.r]&&m.id?' • '+RANKS[m.r].n:''),m.m,m.id===NET.id?'#fbbf24':K.css,m.ch||'all')}
   else if(m.t==='trr'){const f=TRQ.cb[m.id];if(f){delete TRQ.cb[m.id];f(m.text)}}
   else if(m.t==='mail'){(NET.mail=NET.mail||[]).push(m);if(!m.old){toast('🕊️ وصلتك رسالة سرية من '+(KD[m.fk]?KD[m.fk].n:''));sfx('book',.8)}}
-  else if(m.t==='ann'){banner('📯 إعلان من صاحب اللعبة',m.m);chatMsg('📯 صاحب اللعبة',m.m,'#fbbf24');sfx('bell',1)}
+  else if(m.t==='ann'){const t_=(m.tr&&m.tr[LANG])||m.m;banner('📯 إعلان من صاحب اللعبة',t_);chatMsg('📯 صاحب اللعبة',t_,'#fbbf24');sfx('bell',1)}
   else if(m.t==='ev'){NET.ev=m.ev;netBadge();if(m.ev.xp>1||m.ev.gold>1)banner('🎉 '+(m.ev.name||'حدث خاص'),(m.ev.xp>1?'الخبرة ×'+m.ev.xp+' ':'')+(m.ev.gold>1?'الذهب ×'+m.ev.gold:''));else toast('انتهى الحدث الخاص')}
   else if(m.t==='lock'){if(m.k===HOMEK.id){NET.lock=!!m.on;banner(m.on?'🔒 القلعة مغلقة':'🔓 القلعة مفتوحة',m.on?'بأمر الملك: لا يخرج إلا القادة':'عادت البوابة تفتح لأصحاب المهام')}}
   else if(m.t==='food'){if(m.k===HOMEK.id){const o=S.food;S.food=m.v;updCounts();if(o>=30&&m.v<30)toast('⚠️ مخزن الطعام شبه فارغ! الصيد مطلوب');if(o>0&&m.v<=0)toast('🚨 المخزن فارغ! لا أحد يستطيع الأكل — اخرجوا للصيد')}}
@@ -1686,7 +1707,7 @@ function netMsg(m){
   else if(m.t==='defOK'){if(NET.defS)S=NET.defS;NET.authed=false;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}fade('⚠️ انشققت وانضممت إلى '+KD[S.kingdom].n,2200,()=>location.reload())}
   else if(m.t==='defNo'){NET.defS=null;toast('⏳ لا يمكنك الانشقاق الآن (مرة كل 24 ساعة)')}
   else if(m.t==='jail'){if(!JAIL.on)crime(m.why||'أمر من صاحب اللعبة',m.secs)}
-  else if(m.t==='rules'){NET.rules=m.m;if(m.m)banner('📜 قوانين جديدة للمملكة','افتح ⚙️ الإعدادات لقراءتها')}
+  else if(m.t==='rules'){NET.rules=(m.tr&&m.tr[LANG])||m.m;if(m.m)banner('📜 قوانين جديدة للمملكة','افتح ⚙️ الإعدادات لقراءتها')}
   else if(m.t==='fort'){if(KD[m.fort.owner]){const mine=m.byId===NET.id&&m.fort.owner===HOMEK.id;if(mine)fortWon();else{S.fort={owner:m.fort.owner,t:m.fort.t};refreshFort()}if(m.msg)chatMsg('📯 المنادي',m.msg,'#fbbf24');if(!mine&&m.msg)toast('🏳️ '+m.msg)}}
   else if(m.t==='hurt'){P.lastBy=m.id;P.lastByT=performance.now();hurtP(m.d,'قتال مع '+m.by)}
   else if(m.t==='kill'){S.gold+=20;S.xp+=30;S.stats.pvp=(S.stats.pvp||0)+1;banner('⚔️ انتصار','هزمت '+m.name+' • +20 ذهب +30 خبرة');sfx('coins',.9);save();hud()}
@@ -1703,6 +1724,28 @@ function netTick(dt){if(!NET.on)return;NET.t+=dt;{const f=Math.hypot(P.pos.x-WC.
     const dd=m.position.distanceTo(P.pos);r.acc=(r.acc||0)+dt;if(dd<35||(dd<120&&(frame+r.id)%3===0)){r.ent.mixer.update(r.acc);r.acc=0}if(dd>150)m.visible=false}}
 
 /* ================= QUESTS ================= */
+const LORE={
+ prophecy:['«من يصنع تاجًا من حديد النجم، ويرفع رايته فوق حصن العهد ثلاث ليالٍ متتالية، يوحّد الأرض الممزّقة.»','«لكن التاج لا يطيع إلا الرابع.»','— نُقش بأمر الملك الأعلى أوريان، في العام الأول بعد النجم'],
+ borg1:['حديد النجم؟ لا يسأل عنه إلا المجانين... أو الجنود الجدد.','قبل 300 عام سقط نجم أزرق على قلعة الملك أوريان، ونبتت فوقه غابة كاملة في سنة واحدة.','أنا آخر من يعرف كيف يُصهر ذلك الحديد. اذهب إلى المنجم في غابة النزاع وضع يدك على الصخر، ثم عُد وأخبرني بما تشعر.'],
+ mine1:['تضع يدك على الصخر البارد...','نبض. خافت لكنه منتظم، كأن قلبًا ينبض تحت الأرض.'],
+ borg2:['إذن ما زال حيًّا... النجم لم يمت يا بني.','الملوك يتقاتلون على حديده، ولا أحد منهم يسأل لماذا ما زال ينبض.','احتفظ بالأمر لنفسك. وإن سمعت أحدًا يتحدث عن «الرابع»، تعال إليّ.'],
+ laila1:['الذئاب تضاعفت هذا الموسم، والغزلان هربت. لكن هذا ليس أغرب ما رأيت.','قبل ثلاث ليالٍ رأيت رجلًا بعباءة رمادية يمشي بين الذئاب... ولم تهاجمه.','اقتل بعض الذئاب لتفتح الطريق، ثم ابحث في حصن العهد. هناك اختفى.'],
+ fort1:['بين الأخشاب المحروقة تجد آثار أقدام... تنتهي فجأة عند جذع شجرة عتيقة.','على الجذع نقش حديث: أربعة خطوط، وفوقها نجمة.'],
+ laila2:['أربعة خطوط ونجمة؟ هذا رمز الملك أوريان... لم يرسمه أحد منذ 300 عام.','من يكون هذا الرجل؟ ولماذا تحرسه الذئاب؟','لا تخبر القادة. لا أثق بهم هذه الأيام.'],
+ mirza1:{_:['تريد شائعة؟ الشائعات تكلّف... لكن وجهك يعجبني.'],ice:['الحراس يقولون إن ضوءًا أزرق يظهر تحت البحيرة المتجمدة في الليالي التي تُرفع فيها راية على الحصن. اذهب ليلًا وانظر بنفسك.'],fire:['عمّال الحمم يقولون إن في قلب بحيرة الحمم بابًا حديديًا لا يذوب، أغلقه الملك فاران الأول وحرّم فتحه. اذهب ليلًا، فالحمم تهدأ في الظلام.'],sand:['التجّار يقولون إن حجارة بئر الواحة القديمة منقوشة بنجمين يسقطان، لا بنجم واحد. اذهب ليلًا، فالنقوش لا تُرى إلا تحت القمر.']},
+ lm1:{ice:['تحت طبقة الجليد يتوهج ضوء أزرق... ينبض بإيقاع صخر المنجم نفسه.','قطعة ثانية من النجم مدفونة هنا، في قلب مملكتك.'],fire:['وسط الحمم يظهر الباب: حديد أسود لم تذبه النار منذ 300 عام.','على الباب الرمز نفسه: أربعة خطوط ونجمة. ومن خلفه... نبض.'],sand:['تحت ضوء القمر تظهر النقوش: نجم يسقط... ثم نجم ثانٍ أكبر منه.','السقوط الثاني لم يحدث بعد. والنقش يحدد موعده: «حين يجتمع التاج والرابع».']},
+ king1:['تقف أمام الملك وتروي ما رأيت...','يصمت الملك طويلًا ثم يقول: «لم يرَ هذا أحد منذ أيام جدّي. لقد اختارتك الأرض يا جندي.»','«من اليوم ستحمل أسراري. لكن احذر: في قاعة القادة من يبيع أسرارنا.»'],
+ noah1:['حمامة بيضاء تصلني كل ليلة... بلا مُرسِل. والليلة حملت رسالة.','الخط... خط الملك أوريان. رأيته في كتب الأرشيف. لكنه مات منذ 300 عام!','الرسالة تقول: «الرابع بينكم، وسيعرف نفسه حين يحمل حديد النجم.» خذها إلى القائد الأعلى.'],
+ council1:['يقرأ القائد الرسالة... ويتغيّر وجهه.','«هراء! رسائل مزيّفة من جواسيس الأعداء.» يمزّقها ويأمرك بالخروج.','لكنك لمحت على مكتبه ختمًا من مملكة أخرى... القائد يراسل العدو.'],
+ mirza2:['تجلس في زاوية الحانة وتراقب مرزا...','بعد منتصف الليل يربط رسالة بساق حمامة رمادية ويطلقها نحو الغابة.','الخائن ليس وحده، والحمامة الرمادية تتجه إلى حصن العهد. يتبع في الفصل 5...'],
+ a_borg:['المطرقة لا تكذب. السيف الرديء يُعرف من أول ضربة.','حديد النجم؟ عُد إليّ حين تكبر رتبتك.','كل درع أصنعه يحمل اسم صاحبه في قلبه.'],
+ a_mirza:['الطعام في المخزن لا يأتي وحده. اصطادوا!','كل جندي يمرّ من هنا يترك خبرًا... وأنا أجمع الأخبار.','الجائع لا يقاتل جيدًا. اجلس وكُل.'],
+ a_laila:['الغزلان تهرب حين تركض. امشِ ببطء واقترب.','الذئاب تخرج أكثر في الليل. خذ فانوسك.','الصيد الجماعي أسرع. اجمع رفاقك من لوحة المهام.'],
+ a_noah:['الحمام لا يخطئ الطريق أبدًا... إلا حين يريد.','رسائل الملوك ثقيلة، لكن أجنحة الحمام قوية.','الحمامة البيضاء تأتي كل ليلة. ولا أعرف من أين.']};
+function lore(k){const v=LORE[k];if(!v)return[];if(Array.isArray(v))return v;return(v._||[]).concat(v[HOMEK.id]||[])}
+const stT=s=>String(s).replace('{LM}',HOMEK.lmic+' '+HOMEK.lm);
+function openTalk(who,lines,cb){let i=0;const show=()=>{$('#tkWho').textContent=stT(who);$('#tkTxt').textContent=lines[i];$('#tkNext').textContent=i<lines.length-1?'التالي ›':'إغلاق';$('#tkStep').textContent=lines.length>1?(i+1)+'/'+lines.length:''};
+  $('#tkNext').onclick=()=>{sfx('click',.4);if(++i<lines.length)show();else{closeM();if(cb)cb()}};show();openM('mTalk');sfx('book',.5)}
 function curQuest(){return S.quest?QUESTS.find(q=>q.id===S.quest.id):null}
 const beacon=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,90,16,1,true),new THREE.MeshBasicMaterial({color:0xff2a1a,transparent:true,opacity:.55,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false}));scene.add(beacon);
 const beacon2=new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,90,10,1,true),new THREE.MeshBasicMaterial({color:0xffd0a0,transparent:true,opacity:.8,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));scene.add(beacon2);
@@ -1721,19 +1764,20 @@ function questUpd(){
   const st=q.steps[S.quest.step];const cnt=st.hunt||st.wolves||st.wave||st.train;const loopTxt=cnt?` • ${S.quest.n||0}/${cnt}`:'';
   if(st.fort&&fortOwner()===HOMEK){setTimeout(advance,0);return null}
   if(st.wave&&!ENEMIES.some(e=>e.raid))spawnRaid(st.wave);
-  $('#quest').style.display='block';$('#quest').innerHTML=`<b>${q.ic} ${q.n}</b>${q.type==='daily'?' <span class="tag">📅</span>':''}${q.role?' <span class="tag gold">'+ROLES[q.role].ic+' '+ROLES[q.role].n+' مؤقت</span>':''}<br>${st.t}<div class="muted">الخطوة ${S.quest.step+1} من ${q.steps.length}${loopTxt}</div>`;
+  $('#quest').style.display='block';$('#quest').innerHTML=`<b>${q.ic} ${q.n}</b>${q.type==='daily'?' <span class="tag">📅</span>':''}${q.role?' <span class="tag gold">'+ROLES[q.role].ic+' '+ROLES[q.role].n+' مؤقت</span>':''}<br>${stT(st.t)}<div class="muted">الخطوة ${S.quest.step+1} من ${q.steps.length}${loopTxt}</div>`;
   if(st.hunt){for(const a of ANIMALS){if(a.dead&&a.meat&&a.m.position.distanceTo(P.pos)<3.4)return{ic:'🍖',t:'خذ اللحم',fn:()=>{P.ent.once('PickUp',.7);a.meat=false;a.m.visible=false;addItem('meat');S.quest.n=S.inv.meat||0;if(S.quest.n>=st.hunt){S.quest.n=0;toast('🍖 جمعت 3 قطع لحم! عُد بها إلى المخزن');advance()}else{toast('🍖 لحم '+S.quest.n+'/'+st.hunt+' — واصل الصيد');save()}}}}return null}
   if(!st.s||!SPOT[st.s])return null;const sp=SPOT[st.s];const d=Math.hypot(P.pos.x-sp.x,P.pos.z-sp.z);const yok=sp.minY==null||P.pos.y>=sp.minY;
   if(st.group){if(d<sp.r+3&&yok){if(!NET.on){if(!P.gqWarn){P.gqWarn=1;toast('👥 هذه مهمة جماعية — تحتاج اللعب أونلاين')}return null}const now=performance.now();if(!NET.gqT||now-NET.gqT>1500){NET.gqT=now;netSend({t:'gq',q:q.id,s:S.quest.step})}const g=NET.gq&&NET.gq.q===q.id&&NET.gq.s===S.quest.step&&now-NET.gq.t<4000?NET.gq.n:1;$('#quest').innerHTML+=`<div class="tag gold" style="margin-top:3px">👥 ${g}/${st.group} جنود هنا</div>`}return null}
   if(d<sp.r&&yok){if(!st.a){advance();return null}return{ic:'⭐',t:st.a,fn:()=>doStep(st)}}
   return null}
-function doStep(st){if(st.carry&&!st.anim)P.ent.once('PickUp',.7);if(st.ambush)spawnAmbush(st.ambush);if(st.heal===-1){P.hp=maxHp();S.sat=Math.min(100,S.sat+60);hud()}if(st.open&&TREASURE){sparks(TREASURE.position.x,1.5,TREASURE.position.z,0xffd34d);setTimeout(()=>{if(TREASURE)scene.remove(TREASURE)},700)}if(st.anim)P.ent.once(st.anim,st.anim==='Spellcast_Long'?1.4:.8);
+function doStep(st){if(st.night&&dayInfo().nk<.5){toast('🌙 هذا المكان لا يكشف سرّه إلا ليلًا — عُد بعد حلول الظلام');return}if(st.say&&!st._s){const q_=curQuest(),k_=S.quest&&S.quest.step;openTalk(st.who||'',lore(st.say),()=>{const q2=curQuest();if(q2===q_&&S.quest&&S.quest.step===k_)doStep2(st)});return}doStep2(st)}
+function doStep2(st){if(st.carry&&!st.anim)P.ent.once('PickUp',.7);if(st.ambush)spawnAmbush(st.ambush);if(st.heal===-1){P.hp=maxHp();S.sat=Math.min(100,S.sat+60);hud()}if(st.open&&TREASURE){sparks(TREASURE.position.x,1.5,TREASURE.position.z,0xffd34d);setTimeout(()=>{if(TREASURE)scene.remove(TREASURE)},700)}if(st.anim)P.ent.once(st.anim,st.anim==='Spellcast_Long'?1.4:.8);
   if(st.heal!=null&&st.heal>=0)healPatient(st.heal);if(st.serve!=null)serveMeal(st.serve);if(st.spark){sparks(-36.5,1.9,50.6);sfx('anvil',.8)}if(st.anim==='Interact')sfx('chop',.7);
   if(st.drop&&(S.inv.meat||0)>0&&st.s==='store')addFood(5*(S.inv.meat||0));if(st.serve!=null)addFood(1);
   if(st.carry)setCarry(st.carry);else if(st.drop)setCarry(null);if(st.serve!=null&&st.serve<2)takeItem('food',1);advance()}
 function advance(){const q=curQuest();S.quest.step++;
   if(S.quest.step>=q.steps.length){if(q.loop){S.quest.n=(S.quest.n||0)+1;if(S.quest.n<q.loop.times){S.quest.step=q.loop.from;toast('✅ رحلة '+S.quest.n+'/'+q.loop.times+' — عُد للصيد');save();hud();return}}
-    const qm=rMul();const em=NET.on?NET.ev:{xp:1,gold:1};const qg=Math.round(q.g*GOLD_K*qm*em.gold),qx=Math.round(q.xp*em.xp);S.gold+=qg;S.xp+=qx;S.stats.quests++;clearRaid();if(q.type==='daily'){dailyS().ids.push(q.id)}if(q.id==='hunt')S.stats.hunts++;if(q.id==='mine'&&fortOwner()===HOMEK){S.gold+=q.g;toast('🏳️ الحصن لمملكتك — مكافأة المنجم مضاعفة!')}setTimeout(checkMedals,1200);sfx('coins',.8);setTimeout(()=>sfx('bell',.5),250);if(q.type==='once'&&!S.done.includes(q.id))S.done.push(q.id);S.quest=null;setCarry(null);
+    const qm=rMul();const em=NET.on?NET.ev:{xp:1,gold:1};const qg=Math.round(q.g*GOLD_K*qm*em.gold),qx=Math.round(q.xp*em.xp);S.gold+=qg;S.xp+=qx;S.stats.quests++;clearRaid();if(q.type==='daily'){dailyS().ids.push(q.id)}if(q.id==='hunt')S.stats.hunts++;if(q.id==='mine'&&fortOwner()===HOMEK){S.gold+=q.g;toast('🏳️ الحصن لمملكتك — مكافأة المنجم مضاعفة!')}setTimeout(checkMedals,1200);sfx('coins',.8);setTimeout(()=>sfx('bell',.5),250);if((q.type==='once'||q.type==='story')&&!S.done.includes(q.id))S.done.push(q.id);if(q.type==='story')setTimeout(()=>banner('📖 '+q.n,q.ch<4?'الفصل التالي يفتح في لوحة المهام':'يتبع... الفصل 5 قريبًا'),900);S.quest=null;setCarry(null);
     toast('🏆 أكملت "'+q.n+'" — +'+qg+' ذهب، +'+qx+' خبرة');if(S.role){toast('🪖 انتهت مهمتك، عدت جنديًا كما كنت');S.role=null;setPlayerChar()}checkRank()}
   else toast('✅ '+q.steps[S.quest.step-1].t);save();hud()}
 function addFood(d){if(NET.on)netSend({t:'food',d});else{S.food=clamp(S.food+d,0,400);updCounts()}}
@@ -1771,14 +1815,14 @@ function myLob(){for(const k in LOB)if(LOB[k].names.includes(S.name))return[k,LO
 function lobGo(m){const q=QUESTS.find(x=>x.id===m.q);if(!q)return;if(S.quest&&S.quest.id!==q.id){toast('لديك مهمة أخرى نشطة');return}
   acceptQuest(q,true);closeM();sfx('bell',.9);banner('👥 '+q.n,'انطلقت المهمة! '+m.n+' جنود: '+(m.names||[]).join('، '))}
 function openBoard(re){if(!re)sfx('book',.6);const l=$('#qList');const dd=dailyS().ids,m=rMul();
-  const card=q=>{const act=S.quest&&S.quest.id===q.id;const lock=q.type==='rank'&&S.rank<q.minRank;const dn=q.type==='daily'&&dd.includes(q.id);
-    const tags=(q.need&&q.type!=='group'?'<span class="tag gold">👥 '+q.need+' لاعبين أو أكثر</span> ':'')+(q.type==='group'?'<span class="tag gold">👥 جماعية: '+q.need+' جنود أو أكثر</span>':q.type==='daily'?'<span class="tag gold">📅 يومية</span>':q.type==='rank'?'<span class="tag gold">🎖️ مهمة رتبة: '+RANKS[q.minRank].n+'+</span>':q.type==='role'?'<span class="tag">🔁 دائمة</span>':'<span class="tag gold">⭐ مرة واحدة</span>')+(q.role?' <span class="tag gold">'+ROLES[q.role].ic+' تصبح '+ROLES[q.role].n+' مؤقتًا</span>':'')+(q.out?' <span class="tag">🚪 خارج القلعة</span>':'');
+  const card=q=>{const act=S.quest&&S.quest.id===q.id;const lockP=q.type==='story'&&q.prev&&!S.done.includes(q.prev);const lock=(q.type==='rank'||q.type==='story')&&S.rank<q.minRank||lockP;const dn=q.type==='daily'&&dd.includes(q.id);
+    const tags=(q.need&&q.type!=='group'?'<span class="tag gold">👥 '+q.need+' لاعبين أو أكثر</span> ':'')+(q.type==='group'?'<span class="tag gold">👥 جماعية: '+q.need+' جنود أو أكثر</span>':q.type==='daily'?'<span class="tag gold">📅 يومية</span>':q.type==='story'?'<span class="tag gold">📖 قصة • الفصل '+q.ch+'</span>':q.type==='rank'?'<span class="tag gold">🎖️ مهمة رتبة: '+RANKS[q.minRank].n+'+</span>':q.type==='role'?'<span class="tag">🔁 دائمة</span>':'<span class="tag gold">⭐ مرة واحدة</span>')+(q.role?' <span class="tag gold">'+ROLES[q.role].ic+' تصبح '+ROLES[q.role].n+' مؤقتًا</span>':'')+(q.out?' <span class="tag">🚪 خارج القلعة</span>':'');
     const gq=(q.type==='group'||q.need)&&!act,LB=LOB[q.id],inL=LB&&LB.names.includes(S.name);
-    const btn=(gq&&NET.on&&!lock&&!dn)?(inL?'<button class="btn gr" data-lv="1">انسحب</button>':`<button class="btn" data-lj="${q.id}" ${S.quest?'disabled':''}>📝 سجّل</button>`):((q.type==='group'||q.need)&&!NET.on&&!act)?'<button class="btn" disabled>🌐 تحتاج أونلاين</button>':act?'<button class="btn gr" data-ab="'+q.id+'">إلغاء المهمة</button>':lock?'<button class="btn" disabled>🔒 تفتح عند رتبة '+RANKS[q.minRank].n+'</button>':dn?'<button class="btn" disabled>✅ أنجزتها اليوم</button>':`<button class="btn" data-q="${q.id}" ${S.quest?'disabled':''}>قبول المهمة</button>`;
+    const btn=(gq&&NET.on&&!lock&&!dn)?(inL?'<button class="btn gr" data-lv="1">انسحب</button>':`<button class="btn" data-lj="${q.id}" ${S.quest?'disabled':''}>📝 سجّل</button>`):((q.type==='group'||q.need)&&!NET.on&&!act)?'<button class="btn" disabled>🌐 تحتاج أونلاين</button>':act?'<button class="btn gr" data-ab="'+q.id+'">إلغاء المهمة</button>':lock?(lockP?'<button class="btn" disabled>🔒 أكمل الفصل السابق</button>':'<button class="btn" disabled>🔒 تفتح عند رتبة '+RANKS[q.minRank].n+'</button>'):dn?'<button class="btn" disabled>✅ أنجزتها اليوم</button>':`<button class="btn" data-q="${q.id}" ${S.quest?'disabled':''}>قبول المهمة</button>`;
     return`<div class="card" style="${lock||dn?'opacity:.55':''}"><div class="r"><b>${q.ic} ${q.n}</b><span>🪙 ${Math.round(q.g*GOLD_K*m)} • ✨ ${q.xp}</span></div><div class="muted">${q.d}</div>${gq&&NET.on?lobLine(q):''}<div class="r" style="margin-top:6px"><span>${tags}</span>${btn}</div></div>`};
   const sec=t=>`<h3 style="margin:10px 0 4px;color:#fbbf24;font-size:15px">${t}</h3>`;
-  const groupQ=QUESTS.filter(q=>q.type==='group'),daily=QUESTS.filter(q=>q.type==='daily'),rankQ=QUESTS.filter(q=>q.type==='rank').sort((a,b)=>(S.rank>=a.minRank?0:1)-(S.rank>=b.minRank?0:1)||a.minRank-b.minRank),other=QUESTS.filter(q=>(q.type==='role'||q.type==='once')&&(q.type==='role'||!S.done.includes(q.id)));
-  l.innerHTML='<div class="muted" style="margin-bottom:6px">📅 اليومية تتجدد كل يوم • 🎖️ مهام الرتب تفتح مع ترقيتك • 🔁 الدائمة تتكرر • ⭐ مرة واحدة. المكافأة تزيد مع رتبتك (×'+m.toFixed(2)+')</div>'+sec('📅 مهام يومية للجيش')+daily.map(card).join('')+sec('👥 مهام جماعية')+groupQ.map(card).join('')+sec('🎖️ مهام الرتب')+rankQ.map(card).join('')+sec('📜 مهام عامة')+other.map(card).join('');
+  const storyQ=QUESTS.filter(q=>q.type==='story'&&!S.done.includes(q.id)).slice(0,2),groupQ=QUESTS.filter(q=>q.type==='group'),daily=QUESTS.filter(q=>q.type==='daily'),rankQ=QUESTS.filter(q=>q.type==='rank').sort((a,b)=>(S.rank>=a.minRank?0:1)-(S.rank>=b.minRank?0:1)||a.minRank-b.minRank),other=QUESTS.filter(q=>(q.type==='role'||q.type==='once')&&(q.type==='role'||!S.done.includes(q.id)));
+  l.innerHTML='<div class="muted" style="margin-bottom:6px">📅 اليومية تتجدد كل يوم • 🎖️ مهام الرتب تفتح مع ترقيتك • 🔁 الدائمة تتكرر • ⭐ مرة واحدة. المكافأة تزيد مع رتبتك (×'+m.toFixed(2)+')</div>'+(storyQ.length?sec('📖 القصة: سجلّ التيجان الثلاثة')+storyQ.map(card).join(''):'')+sec('📅 مهام يومية للجيش')+daily.map(card).join('')+sec('👥 مهام جماعية')+groupQ.map(card).join('')+sec('🎖️ مهام الرتب')+rankQ.map(card).join('')+sec('📜 مهام عامة')+other.map(card).join('');
   l.querySelectorAll('[data-lj]').forEach(b=>b.onclick=()=>{netSend({t:'lobJoin',q:b.dataset.lj});sfx('book',.5)});l.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>netSend({t:'lobLeave'}));
   l.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>acceptQuest(QUESTS.find(x=>x.id===b.dataset.q)));
   l.querySelectorAll('[data-ab]').forEach(b=>b.onclick=()=>{clearRaid();S.quest=null;S.role=null;setPlayerChar();setCarry(null);save();hud();openBoard(1)});if(!re)openM('mBoard')}
@@ -2086,9 +2130,9 @@ function showStart(){$('#startBox').style.display='block';
     started=true;netJoin();document.body.classList.add('playing');if(mobile){try{const de=document.documentElement;const fs=de.requestFullscreen||de.webkitRequestFullscreen;if(fs){const pr=fs.call(de);if(pr&&pr.then)pr.then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})).catch(()=>{})}}catch(e){}}audioInit();setPlayerChar();updBag();if(S.pos){P.pos.set(S.pos.x,0,S.pos.z);cam.yaw=PI/2}else{P.pos.set(0,0,HZ-14);cam.yaw=0}
     camera.position.set(P.pos.x,6,P.pos.z+9);hud();$('#load').style.display='none';
     banner(HOMEK.ic+' '+HOMEK.n,S.pos?'استيقظت في بيتك':'أهلًا بك أيها الجندي '+S.name+' — لوحة المهام أمامك');
-    chatMsg('النظام','مرحبًا بك في '+HOMEK.n+'! خذ مهمة من لوحة المهام في الساحة.','#86efac')}}
+    chatMsg('النظام','مرحبًا بك في '+HOMEK.n+'! خذ مهمة من لوحة المهام في الساحة.','#86efac');let seenL=false;try{seenL=localStorage.getItem('kc_intro_'+(S.name||''))==='1'}catch(e){}if(!S.introSeen&&!seenL&&(S.xp||0)<50&&!(S.done||[]).includes('st1'))setTimeout(()=>runIntro(()=>{banner('📖 سجلّ التيجان الثلاثة','قصتك تبدأ من لوحة المهام: الفصل 1');toast('📖 الفصل 1: النجم الساقط — في لوحة المهام')}),600)}}
 init().catch(e=>{$('#lmsg').textContent='حدث خطأ: '+e.message;console.error(e)});
-window.__kc={gs:()=>S,QUESTS,hud:()=>hud(),lob:()=>LOB,dbg:()=>JSON.stringify({started,sa:NET.sockAuth,rc:NET.rc,op:!!NET.opening,on:NET.on,id:NET.id}),CH,openChat,chTabSet:t=>{chTab=t;chRender()},NET,th:(x,z)=>{const p=toL(x,z);return terrainH(p.x,p.z)},toC,toL,NPCS,labels:()=>LABELS,ENEMIES,raiseFlag,openDove,die:()=>die('اختبار'),cold:v=>{P.cold=v},addItem:(k,n)=>addItem(k,n),G:()=>G,setType:t=>{S.stype=t;setPlayerChar()},P,S,cam,SPOT,crime,enterTraining,openBar,openBoard,BALS,mountBal,fireBal:()=>fireBal(),ANIMALS,HORSE,setT:v=>{forceT=v},drawBig,openMap:()=>{drawBig();openM('mMap')},setPos:(x,y,z,yaw)=>{P.pos.set(x,y,z);if(yaw!=null)cam.yaw=yaw},night:v=>{night=v},quest:id=>{S.quest={id,step:0}}};
+window.__kc={gs:()=>S,openTalk,lore,acceptQ:id=>acceptQuest(QUESTS.find(q=>q.id===id)),QUESTS,hud:()=>hud(),lob:()=>LOB,openKing,setLook:l=>{S.look=l;setPlayerChar()},look:(y,z)=>{LOOK_Y=y;LOOK_Z=z;setPlayerChar()},dbg:()=>JSON.stringify({started,sa:NET.sockAuth,rc:NET.rc,op:!!NET.opening,on:NET.on,id:NET.id}),CH,openChat,chTabSet:t=>{chTab=t;chRender()},NET,th:(x,z)=>{const p=toL(x,z);return terrainH(p.x,p.z)},toC,toL,NPCS,labels:()=>LABELS,ENEMIES,raiseFlag,openDove,die:()=>die('اختبار'),cold:v=>{P.cold=v},addItem:(k,n)=>addItem(k,n),G:()=>G,setType:t=>{S.stype=t;setPlayerChar()},P,S,cam,SPOT,crime,enterTraining,openBar,openBoard,BALS,mountBal,fireBal:()=>fireBal(),ANIMALS,HORSE,setT:v=>{forceT=v},drawBig,openMap:()=>{drawBig();openM('mMap')},setPos:(x,y,z,yaw)=>{P.pos.set(x,y,z);if(yaw!=null)cam.yaw=yaw},night:v=>{night=v},quest:id=>{S.quest={id,step:0}}};
 })();
 </script>
 </body>
